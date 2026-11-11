@@ -107,29 +107,16 @@ async function openExercisePicker(onPick) {
 }
 
 function itemEditor(it, index, onChange, onRemove) {
-  const series = input('number', { min: 0, value: it.series ?? '', placeholder: it.exercise_series_defaut != null ? `hérité : ${it.exercise_series_defaut}` : 'séries' });
-  const reps = input('number', { min: 0, value: it.repetitions ?? '', placeholder: it.exercise_repetitions_defaut != null ? `hérité : ${it.exercise_repetitions_defaut}` : 'rép.' });
-  const temps = input('number', { min: 0, value: it.temps_travail ?? '', placeholder: it.exercise_temps_travail_defaut != null ? `hérité : ${it.exercise_temps_travail_defaut} s` : 's' });
-  const repos = input('number', { min: 0, value: it.repos ?? '', placeholder: it.exercise_repos_defaut != null ? `hérité : ${it.exercise_repos_defaut} s` : 's' });
-  const charge = input('text', { value: it.charge ?? '', placeholder: it.exercise_charge_conseille ? `hérité : ${it.exercise_charge_conseille}` : 'charge', maxlength: 60 });
-  const notes = input('text', { value: it.notes ?? '', placeholder: 'notes', maxlength: 1000 });
-  const read = () => {
-    onChange(index, {
-      ...it,
-      series: series.value === '' ? null : Number(series.value),
-      repetitions: reps.value === '' ? null : Number(reps.value),
-      temps_travail: temps.value === '' ? null : Number(temps.value),
-      repos: repos.value === '' ? null : Number(repos.value),
-      charge: charge.value.trim(),
-      notes: notes.value.trim(),
-    });
-  };
-  for (const el of [series, reps, temps, repos, charge, notes]) el.addEventListener('input', read);
-  const handle = h('button', { class: 'drag-handle', draggable: false, 'aria-label': `Déplacer ${itemTitle(it)}`, title: 'Glisser pour réordonner' }, '⠿');
-  const up = h('button', { class: 'btn small ghost', 'aria-label': 'Monter', onclick: () => onChange(index, null, 'up') }, '↑');
-  const down = h('button', { class: 'btn small ghost', 'aria-label': 'Descendre', onclick: () => onChange(index, null, 'down') }, '↓');
-  const remove = h('button', { class: 'btn small danger', 'aria-label': `Retirer ${itemTitle(it)}`, onclick: () => onRemove(index) }, '✕');
-  return h('div', {
+  const handle = h('button', { class: 'drag-handle', draggable: false, 'aria-label': `Déplacer ${itemTitle(it)}`, title: 'Glisser pour réordonner' }, '\u283f');
+  const up = h('button', { class: 'btn small ghost', 'aria-label': 'Monter', onclick: () => onChange(index, null, 'up') }, '\u2191');
+  const down = h('button', { class: 'btn small ghost', 'aria-label': 'Descendre', onclick: () => onChange(index, null, 'down') }, '\u2193');
+  const remove = h('button', { class: 'btn small danger', 'aria-label': `Retirer ${itemTitle(it)}`, onclick: () => onRemove(index) }, '\u2715');
+  const head = h('div', { class: 'si-head' },
+    handle,
+    h('h4', {}, `${index + 1}. ${itemTitle(it)}`),
+    it.exercise_id ? badge(it.exercise_categorie === 'mobilité' ? 'Mobilité' : 'Renforcement', it.exercise_categorie) : badge('Bloc libre', 'mixte'),
+    h('div', { style: 'margin-left:auto', class: 'row' }, up, down, remove));
+  const wrap = (body) => h('div', {
     class: 'session-item',
     draggable: 'true',
     dataset: { index: String(index) },
@@ -145,12 +132,32 @@ function itemEditor(it, index, onChange, onRemove) {
       const from = Number(e.dataTransfer.getData('text/plain'));
       if (!Number.isNaN(from) && from !== index) onChange(from, null, 'move', index);
     },
-  },
-    h('div', { class: 'si-head' },
-      handle,
-      h('h4', {}, `${index + 1}. ${itemTitle(it)}`),
-      it.exercise_id ? badge(it.exercise_categorie === 'mobilité' ? 'Mobilité' : 'Renforcement', it.exercise_categorie) : badge('Bloc libre', 'mixte'),
-      h('div', { style: 'margin-left:auto', class: 'row' }, up, down, remove)),
+  }, head, body);
+  const notes = input('text', { value: it.notes ?? '', placeholder: 'notes', maxlength: 1000 });
+  notes.addEventListener('input', () => onChange(index, { ...it, notes: notes.value.trim() }));
+  if (it.exercise_id) {
+    return wrap(
+      h('div', { class: 'ri-params' }, itemParamsText(it) || '\u2014'),
+      field('Notes', notes));
+  }
+  const series = input('number', { min: 0, value: it.series ?? '', placeholder: 'séries' });
+  const reps = input('number', { min: 0, value: it.repetitions ?? '', placeholder: 'rép.' });
+  const temps = input('number', { min: 0, value: it.temps_travail ?? '', placeholder: 's' });
+  const repos = input('number', { min: 0, value: it.repos ?? '', placeholder: 's' });
+  const charge = input('text', { value: it.charge ?? '', placeholder: 'charge', maxlength: 60 });
+  const read = () => {
+    onChange(index, {
+      ...it,
+      series: series.value === '' ? null : Number(series.value),
+      repetitions: reps.value === '' ? null : Number(reps.value),
+      temps_travail: temps.value === '' ? null : Number(temps.value),
+      repos: repos.value === '' ? null : Number(repos.value),
+      charge: charge.value.trim(),
+      notes: notes.value.trim(),
+    });
+  };
+  for (const el of [series, reps, temps, repos, charge, notes]) el.addEventListener('input', read);
+  return wrap(
     h('div', { class: 'field-row' },
       field('Séries', series), field('Répétitions', reps), field('Temps (s)', temps),
       field('Repos (s)', repos), field('Charge', charge)),
