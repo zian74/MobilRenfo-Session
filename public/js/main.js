@@ -4,6 +4,7 @@ import { renderAuth } from './views/auth.js';
 import { renderExercises, renderExerciseForm } from './views/exercises.js';
 import { renderSessions, renderSessionForm, renderSessionRead } from './views/sessions.js';
 import { renderSessionRun } from './views/sessionRun.js';
+import { renderSessionLive } from './views/sessionLive.js';
 import { renderCalendar } from './views/calendar.js';
 import { renderHistory } from './views/history.js';
 import { renderProfile } from './views/profile.js';
@@ -29,6 +30,7 @@ const routes = [
   [/^#\/sessions$/, () => renderSessions()],
   [/^#\/sessions\/nouvelle$/, () => renderSessionForm(null)],
   [/^#\/sessions\/(\d+)\/lecture$/, (m) => renderSessionRead(Number(m[1]))],
+  [/^#\/sessions\/(\d+)\/demarrer$/, (m) => renderSessionLive(Number(m[1]))],
   [/^#\/sessions\/(\d+)$/, (m) => renderSessionForm(Number(m[1]))],
   [/^#\/seance\/(\d+)$/, (m) => renderSessionRun(Number(m[1]))],
   [/^#\/calendrier$/, () => renderCalendar()],

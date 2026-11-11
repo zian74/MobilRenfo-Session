@@ -442,3 +442,20 @@ video.media-preview { width: 100%; max-height: 260px; background: #000; border-r
 .bar-fill { background: var(--primary); height: 100%; border-radius: 999px; }
 .bar-fill.alt { background: var(--success); }
 .bar-value { text-align: right; font-variant-numeric: tabular-nums; }
+
+.live-run { max-width: 720px; margin: 0 auto; }
+.live-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.live-stage { text-align: center; border-radius: var(--radius); padding: 28px 18px; border: 2px solid var(--border); background: #fff; }
+.live-stage.intro { border-color: #e0a63d; background: #fff8ec; }
+.live-stage.work { border-color: var(--primary); background: #f4f7ff; }
+.live-stage.rest { border-color: var(--success); background: #f0faf4; }
+.live-stage.done { border-color: var(--success); background: #e7f5ee; }
+.live-stage.paused { opacity: 0.75; }
+.live-phase { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.live-exercise { font-size: 1.6rem; font-weight: 700; margin: 8px 0 4px; }
+.live-meta { color: var(--muted); margin-bottom: 10px; }
+.live-timer { font-size: 4.2rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.05; margin: 6px 0 12px; }
+.live-progress { height: 10px; background: #eef1f5; border-radius: 999px; overflow: hidden; margin: 0 auto 14px; max-width: 420px; }
+.live-progress > div { height: 100%; background: var(--primary); border-radius: 999px; transition: width 0.25s; }
+.live-next { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; min-height: 1.1em; }
+.live-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
