@@ -127,3 +127,41 @@ export function emptyState(message, action) {
 export function loading() {
   return h('div', { class: 'loading', role: 'status' }, 'Chargement…');
 }
+
+const IMAGE_EXT = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+const VIDEO_EXT = ['mp4', 'webm', 'mov'];
+
+export function mediaKind(url) {
+  const m = /\.([a-z0-9]{1,5})(?:$|\?)/i.exec(String(url || ''));
+  if (!m) return url?.startsWith('/api/media/') ? 'media' : 'url';
+  const ext = m[1].toLowerCase();
+  if (IMAGE_EXT.includes(ext)) return 'image';
+  if (VIDEO_EXT.includes(ext)) return 'video';
+  return 'url';
+}
+
+export function mediaKey(url) {
+  const m = /^\/api\/media\/([a-f0-9]{32})$/.exec(String(url || ''));
+  return m ? m[1] : null;
+}
+
+export function mediaPreview(url, { small = false } = {}) {
+  const kind = mediaKind(url);
+  if (kind === 'image') return h('img', { src: url, alt: 'Média de l’exercice', class: small ? 'media-thumb' : 'media-preview', loading: 'lazy' });
+  if (kind === 'video') return h('video', { src: url, controls: true, class: small ? 'media-thumb' : 'media-preview', preload: 'metadata' });
+  return null;
+}
+
+export const JOURS_SEMAINE = [
+  [1, 'Lun'], [2, 'Mar'], [3, 'Mer'], [4, 'Jeu'], [5, 'Ven'], [6, 'Sam'], [0, 'Dim'],
+];
+
+export function joursPicker(initial = []) {
+  const set = new Set(initial);
+  const checks = JOURS_SEMAINE.map(([val, label]) => {
+    const cb = input('checkbox', { checked: set.has(val) });
+    return { val, cb, row: h('label', { class: 'jour-chip' }, cb, label) };
+  });
+  const box = h('div', { class: 'jours-picker', role: 'group', 'aria-label': 'Jours de la semaine' }, ...checks.map((c) => c.row));
+  return { box, get: () => checks.filter((c) => c.cb.checked).map((c) => c.val) };
+}

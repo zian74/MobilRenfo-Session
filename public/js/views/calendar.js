@@ -1,8 +1,9 @@
 import { get, post, put, del } from '../api.js';
-import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialog, modal, badge, loading, formatDateFr } from '../ui.js';
+import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialog, modal, loading, formatDateFr, joursPicker } from '../ui.js';
+import { openLogModal } from './logModal.js';
 
 const JOURS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-const RECURRENCES = [['none', 'Une seule fois'], ['daily', 'Tous les jours'], ['weekly', 'Toutes les semaines']];
+const RECURRENCES = [['none', 'Une seule fois'], ['daily', 'Tous les jours'], ['weekly', 'Toutes les semaines'], ['custom', 'Jours personnalisés…']];
 const TYPE_LABEL = { renforcement: 'Renforcement', mobilité: 'Mobilité', mixte: 'Mixte', libre: 'Libre' };
 
 function iso(d) {
@@ -143,20 +144,42 @@ export async function renderCalendar() {
     gridWrap.append(grid);
   }
 
+  function recurrenceFields(initialRec = 'none', initialJours = [], initialFin = '') {
+    const rec = select(RECURRENCES, { value: initialRec });
+    const picker = joursPicker(initialJours);
+    const fin = input('date', { value: initialFin || '' });
+    const customBox = h('div', { class: 'field', style: 'display:none' },
+      h('span', { class: 'label' }, 'Jours concernés'),
+      picker.box,
+      field('Fin de récurrence (optionnel)', fin));
+    const toggle = () => { customBox.style.display = rec.value === 'custom' ? '' : 'none'; };
+    rec.addEventListener('change', toggle);
+    toggle();
+    return {
+      rec, fin, customBox,
+      get: () => ({
+        recurrence: rec.value,
+        jours: rec.value === 'custom' ? picker.get() : [],
+        fin_recurrence: fin.value || null,
+      }),
+    };
+  }
+
   async function openPlanModal(dateIso) {
     let sessions = [];
     try { sessions = (await get('/api/sessions')).sessions; } catch { /* ignore */ }
     const sessionSel = select([['', '— Séance libre —'], ...sessions.map((s) => [String(s.id), `${s.nom} (${TYPE_LABEL[s.type]})`])]);
     const titre = input('text', { maxlength: 120, placeholder: 'ex. Étirements du soir' });
     const heure = input('time', {});
-    const rec = select(RECURRENCES, { value: 'none' });
+    const recF = recurrenceFields();
     const notes = textarea({ rows: 2, placeholder: 'Notes (optionnel)' });
     const err = h('div', {});
     const content = h('form', {}, err,
       h('p', { class: 'muted small' }, `Planifier le ${formatDateFr(dateIso)}`),
       field('Fiche de session', sessionSel),
       field('Titre (si séance libre)', titre),
-      h('div', { class: 'field-row' }, field('Heure (optionnel)', heure), field('Récurrence', rec)),
+      h('div', { class: 'field-row' }, field('Heure (optionnel)', heure), field('Récurrence', recF.rec)),
+      recF.customBox,
       field('Notes', notes),
       h('div', { class: 'form-actions' },
         h('button', { type: 'submit', class: 'btn primary' }, 'Planifier'),
@@ -176,7 +199,7 @@ export async function renderCalendar() {
           titre_libre: titre.value.trim(),
           date: dateIso,
           heure: heure.value || null,
-          recurrence: rec.value,
+          ...recF.get(),
           notes: notes.value.trim(),
         });
         toast('Séance planifiée', 'success');
@@ -192,7 +215,7 @@ export async function renderCalendar() {
       try { session = (await get(`/api/sessions/${p.session_id}`)).session; } catch { session = null; }
     }
     const heure = input('time', { value: p.heure ?? '' });
-    const rec = select(RECURRENCES, { value: p.recurrence });
+    const recF = recurrenceFields(p.recurrence, p.jours ?? [], p.fin_recurrence ?? '');
     const notes = textarea({ rows: 2 });
     notes.value = p.notes ?? '';
     const date = input('date', { value: p.date });
@@ -203,21 +226,22 @@ export async function renderCalendar() {
         p.recurrence !== 'none' ? ` · ${RECURRENCES.find(([v]) => v === p.recurrence)[1].toLowerCase()}` : ''),
       err,
       h('div', { class: 'field-row' },
-        field('Jour', date), field('Heure', heure), field('Récurrence', rec)),
+        field('Jour', date), field('Heure', heure), field('Récurrence', recF.rec)),
+      recF.customBox,
       field('Notes', notes));
 
     const btnRow = h('div', { class: 'form-actions' });
     const saveBtn = h('button', { class: 'btn primary', onclick: async () => {
       clear(err);
       try {
-        await put(`/api/planned/${p.id}`, { date: date.value, heure: heure.value || null, recurrence: rec.value, notes: notes.value.trim() });
+        await put(`/api/planned/${p.id}`, { date: date.value, heure: heure.value || null, ...recF.get(), notes: notes.value.trim() });
         toast('Planification mise à jour', 'success');
         m.close();
         load();
       } catch (e) { err.append(errorBox(e.message)); }
     } }, 'Enregistrer');
-    const doneBtn = h('button', { class: `btn ${p.effectuee ? '' : 'primary'}`, onclick: () => openLogModal(p, session, m) }, p.effectuee ? '📋 Voir / modifier le bilan' : '✅ Marquer effectuée + bilan');
-    const readBtn = session ? h('a', { class: 'btn', href: `#/sessions/${session.id}/lecture`, onclick: () => m.close() }, '👁 Fiche séance') : null;
+    const doneBtn = h('button', { class: `btn ${p.effectuee ? '' : 'primary'}`, onclick: () => openLogModal(p, session, { onSaved: load }) }, p.effectuee ? '📋 Voir / modifier le bilan' : '✅ Marquer effectuée + bilan');
+    const readBtn = session ? h('a', { class: 'btn', href: `#/seance/${p.id}`, onclick: () => m.close() }, '▶ Séance du jour') : null;
     const delBtn = h('button', { class: 'btn danger', onclick: async () => {
       if (await confirmDialog('Supprimer cette planification (et son bilan) ?')) {
         try { await del(`/api/planned/${p.id}`); toast('Planification supprimée'); m.close(); load(); }
@@ -227,85 +251,6 @@ export async function renderCalendar() {
     btnRow.append(saveBtn, doneBtn, readBtn, delBtn, h('button', { class: 'btn', onclick: () => m.close() }, 'Fermer'));
     content.append(btnRow);
     const m = modal({ title: 'Séance planifiée', content });
-  }
-
-  async function openLogModal(p, session, parentModal) {
-    parentModal?.close();
-    const items = session?.items ?? [];
-    let prevLogs = [];
-    try {
-      const hist = (await get('/api/history')).history.find((hh) => hh.id === p.id);
-      prevLogs = hist?.logs ?? [];
-    } catch { /* pas encore de bilan */ }
-    if (!prevLogs.length && session) {
-      prevLogs = items.map((it) => ({
-        session_exercise_id: it.id,
-        series_realisees: it.series ?? null,
-        repetitions_realisees: it.repetitions ?? null,
-        charge_utilisee: it.charge ?? '',
-      }));
-    }
-
-    const rows = [];
-    const content = h('form', { class: 'picker-list' });
-    const err = h('div', {});
-    content.append(h('p', { class: 'small muted' }, `Bilan de « ${p.session_nom || p.titre_libre || 'séance'} » du ${formatDateFr(p.occurrenceDate)}`));
-
-    function makeRow(label, itemId, prev) {
-      const series = input('number', { min: 0, placeholder: 'séries', value: prev?.series_realisees ?? '' });
-      const reps = input('number', { min: 0, placeholder: 'rép.', value: prev?.repetitions_realisees ?? '' });
-      const charge = input('text', { placeholder: 'charge', maxlength: 60, value: prev?.charge_utilisee ?? '' });
-      const sensation = select([['', 'Sensation…'], ['facile', 'Facile'], ['correct', 'Correct'], ['difficile', 'Difficile'], ['très difficile', 'Très difficile']], { value: prev?.sensation ?? '' });
-      const commentaire = input('text', { placeholder: 'commentaire', maxlength: 1000, value: prev?.commentaire ?? '' });
-      const row = h('div', { class: 'session-item' },
-        h('div', { class: 'si-head' }, h('h4', {}, label)),
-        h('div', { class: 'field-row' },
-          field('Séries réalisées', series), field('Répétitions réalisées', reps), field('Charge utilisée', charge)),
-        h('div', { class: 'field-row' }, field('Sensation', sensation), field('Commentaire', commentaire)));
-      rows.push({ itemId, get: () => ({
-        session_exercise_id: itemId ?? null,
-        exercice: label,
-        series_realisees: series.value === '' ? null : Number(series.value),
-        repetitions_realisees: reps.value === '' ? null : Number(reps.value),
-        charge_utilisee: charge.value.trim(),
-        sensation: sensation.value,
-        commentaire: commentaire.value.trim(),
-      }) });
-      return row;
-    }
-
-    if (session && items.length) {
-      items.forEach((it) => {
-        const prev = prevLogs.find((l) => l.session_exercise_id === it.id);
-        content.append(makeRow(it.exercise_nom || it.nom_libre || 'Bloc libre', it.id, prev));
-      });
-    } else {
-      const prev = prevLogs[0];
-      content.append(makeRow(p.session_nom || p.titre_libre || 'Séance libre', null, prev));
-    }
-
-    const notes = textarea({ rows: 2, placeholder: 'Notes sur la séance (optionnel)' });
-    notes.value = p.notes ?? '';
-    content.append(err, field('Notes de la séance', notes),
-      h('div', { class: 'form-actions' },
-        h('button', { type: 'submit', class: 'btn primary' }, 'Enregistrer le bilan (séance effectuée)'),
-        h('button', { type: 'button', class: 'btn', onclick: () => m.close() }, 'Annuler')));
-
-    const m = modal({ title: 'Bilan de la séance', content, wide: true });
-    content.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clear(err);
-      try {
-        await post(`/api/planned/${p.id}/logs`, {
-          logs: rows.map((r) => r.get()).filter((l) => l.exercice),
-          notes: notes.value.trim(),
-          marquer_effectuee: true,
-        });
-        toast('Bilan enregistré, séance marquée effectuée', 'success');
-        m.close();
-        load();
-      } catch (e2) { err.append(errorBox(e2.message)); }
-    });
   }
 
   await load();

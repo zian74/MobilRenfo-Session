@@ -31,3 +31,19 @@ export const get = (path) => api('GET', path);
 export const post = (path, body) => api('POST', path, body ?? {});
 export const put = (path, body) => api('PUT', path, body ?? {});
 export const del = (path) => api('DELETE', path);
+
+export async function uploadMedia(file) {
+  const res = await fetch(`/api/media/upload?filename=${encodeURIComponent(file.name || 'media')}`, {
+    method: 'POST',
+    headers: { 'content-type': file.type || 'application/octet-stream' },
+    body: file,
+    credentials: 'same-origin',
+  });
+  if (res.status === 401) {
+    if (location.hash !== '#/connexion') location.hash = '#/connexion';
+    throw new ApiError(401, 'Session expirée, veuillez vous reconnecter');
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(res.status, data.error || `Erreur ${res.status}`);
+  return data;
+}

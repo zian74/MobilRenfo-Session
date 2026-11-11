@@ -19,8 +19,9 @@ export async function renderHistory() {
   main.append(toolbar);
 
   const statsBox = h('div', { class: 'stats-grid' });
+  const advBox = h('div', { class: 'adv-grid' });
   const listBox = h('div', {});
-  main.append(statsBox, h('h2', { style: 'font-size:1.1rem' }, 'Séances effectuées'), listBox);
+  main.append(statsBox, advBox, h('h2', { style: 'font-size:1.1rem' }, 'Séances effectuées'), listBox);
 
   let facets = { groupes: [] };
   try { facets = await get('/api/exercises/facets'); } catch { /* ignore */ }
@@ -28,6 +29,7 @@ export async function renderHistory() {
 
   async function load() {
     clear(statsBox).append(loading());
+    clear(advBox).append(loading());
     clear(listBox).append(loading());
     const qs = new URLSearchParams();
     if (from.value) qs.set('from', from.value);
@@ -39,17 +41,18 @@ export async function renderHistory() {
     try {
       [history, stats] = await Promise.all([get(`/api/history?${qstr}`), get(`/api/stats?${qstr}`)]);
     } catch (e) {
-      clear(statsBox); clear(listBox);
+      clear(statsBox); clear(advBox); clear(listBox);
       listBox.append(emptyState(e.message));
       return;
     }
     clear(statsBox);
+    clear(advBox);
     const s = stats.stats;
     const cards = [
       [String(s.totalSeances), 'séances effectuées'],
       [String(s.repetitionsTotales), 'répétitions totales'],
       [`${s.volumeTotal} kg`, 'volume total (séries × rép. × charge)'],
-      [s.parSemaine.length ? `${s.parSemaine[s.parSemaine.length - 1].n} cette semaine` : '—', 'cette semaine'],
+      [`${s.streakSemaines} sem.`, 'série en cours (semaines consécutives)'],
     ];
     for (const [v, l] of cards) {
       statsBox.append(h('div', { class: 'stat-card' }, h('div', { class: 'stat-value' }, v), h('div', { class: 'stat-label' }, l)));
@@ -57,6 +60,44 @@ export async function renderHistory() {
     if (s.repartition.length > 1) {
       const rep = s.repartition.map((r) => `${r.type} : ${r.n}`).join(' · ');
       statsBox.append(h('div', { class: 'stat-card', style: 'grid-column: 1 / -1' }, h('div', { class: 'stat-label' }, `Répartition — ${rep}`)));
+    }
+
+    if (s.volumeParSemaine.length) {
+      const maxV = Math.max(...s.volumeParSemaine.map((w) => w.volume), 1);
+      const volCard = h('div', { class: 'card' },
+        h('h3', { style: 'margin-top:0;font-size:1rem' }, 'Volume par semaine (kg)'));
+      for (const w of s.volumeParSemaine) {
+        volCard.append(h('div', { class: 'bar-row' },
+          h('span', { class: 'bar-label' }, w.semaine),
+          h('div', { class: 'bar-track' }, h('div', { class: 'bar-fill', style: `width:${Math.max(2, Math.round((w.volume / maxV) * 100))}%` })),
+          h('span', { class: 'bar-value' }, String(w.volume))));
+      }
+      advBox.append(volCard);
+    }
+
+    if (s.volumeParGroupe.length) {
+      const maxG = Math.max(...s.volumeParGroupe.map((g) => g.volume), 1);
+      const grpCard = h('div', { class: 'card' },
+        h('h3', { style: 'margin-top:0;font-size:1rem' }, 'Volume par groupe musculaire (kg)'));
+      for (const g of s.volumeParGroupe) {
+        grpCard.append(h('div', { class: 'bar-row' },
+          h('span', { class: 'bar-label' }, g.groupe),
+          h('div', { class: 'bar-track' }, h('div', { class: 'bar-fill alt', style: `width:${Math.max(2, Math.round((g.volume / maxG) * 100))}%` })),
+          h('span', { class: 'bar-value' }, String(g.volume))));
+      }
+      advBox.append(grpCard);
+    }
+
+    if (s.progressionParExercice.length) {
+      const progCard = h('div', { class: 'card' },
+        h('h3', { style: 'margin-top:0;font-size:1rem' }, 'Progression des charges par exercice'));
+      for (const p of s.progressionParExercice) {
+        const pts = p.points.map((pt) => `${pt.semaine} : ${pt.chargeMax} kg`).join(' → ');
+        progCard.append(h('details', { class: 'history-entry' },
+          h('summary', {}, p.exercice),
+          h('p', { class: 'small muted' }, pts)));
+      }
+      advBox.append(progCard);
     }
 
     clear(listBox);

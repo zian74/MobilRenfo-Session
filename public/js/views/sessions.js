@@ -276,6 +276,51 @@ export async function renderSessionForm(id) {
   nom.focus();
 }
 
+export function buildReadSheet(session, { extraActions = null } = {}) {
+  const sheet = h('div', { class: 'read-sheet card' });
+  const checked = new Set();
+  sheet.append(
+    h('h1', {}, session.nom),
+    h('div', { class: 'sheet-meta' },
+      badge(session.type === 'renforcement' ? 'Renforcement' : session.type === 'mobilité' ? 'Mobilité' : 'Mixte', session.type),
+      ' ',
+      badge(formatDuree(session.duree_estimee)),
+      session.description ? h('p', { class: 'muted', style: 'margin:8px 0 0' }, session.description) : null),
+    h('div', { class: 'read-actions' },
+      h('a', { class: 'btn', href: `#/sessions/${session.id}` }, '← Modifier'),
+      extraActions,
+      h('button', { class: 'btn', onclick: () => window.print() }, '🖨 Imprimer'),
+      h('button', { class: 'btn', onclick: () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen?.();
+      } }, '⛶ Plein écran')));
+
+  if (session.echauffement) {
+    sheet.append(h('div', { class: 'read-block' }, h('strong', {}, 'Échauffement — '), session.echauffement));
+  }
+  const progressP = h('p', { class: 'muted small mt' }, `0/${session.items.length} exercices cochés`);
+  session.items.forEach((it, i) => {
+    const cb = input('checkbox', { 'aria-label': `Exercice ${i + 1} effectué` });
+    const row = h('div', { class: 'read-item' });
+    cb.addEventListener('change', () => {
+      if (cb.checked) { checked.add(i); row.classList.add('checked'); }
+      else { checked.delete(i); row.classList.remove('checked'); }
+      progressP.textContent = `${checked.size}/${session.items.length} exercices cochés`;
+    });
+    row.append(cb, h('div', { class: 'ri-body' },
+      h('div', { class: 'ri-name' }, `${i + 1}. ${itemTitle(it)}`),
+      h('div', { class: 'ri-params' }, itemParamsText(it) || '—'),
+      it.notes ? h('div', { class: 'ri-params' }, `Note : ${it.notes}`) : null,
+      it.exercise_id ? h('a', { class: 'small', href: `#/exercices/${it.exercise_id}` }, 'Voir la fiche exercice') : null));
+    sheet.append(row);
+  });
+  if (session.retour_au_calme) {
+    sheet.append(h('div', { class: 'read-block' }, h('strong', {}, 'Retour au calme — '), session.retour_au_calme));
+  }
+  sheet.append(progressP);
+  return sheet;
+}
+
 export async function renderSessionRead(id) {
   const main = document.getElementById('app-main');
   clear(main);
@@ -288,44 +333,5 @@ export async function renderSessionRead(id) {
     return;
   }
   clear(main);
-
-  const sheet = h('div', { class: 'read-sheet card' });
-  const checked = new Set();
-  sheet.append(
-    h('h1', {}, session.nom),
-    h('div', { class: 'sheet-meta' },
-      badge(session.type === 'renforcement' ? 'Renforcement' : session.type === 'mobilité' ? 'Mobilité' : 'Mixte', session.type),
-      ' ',
-      badge(formatDuree(session.duree_estimee)),
-      session.description ? h('p', { class: 'muted', style: 'margin:8px 0 0' }, session.description) : null),
-    h('div', { class: 'read-actions' },
-      h('a', { class: 'btn', href: `#/sessions/${session.id}` }, '← Modifier'),
-      h('button', { class: 'btn', onclick: () => window.print() }, '🖨 Imprimer'),
-      h('button', { class: 'btn', onclick: () => {
-        if (document.fullscreenElement) document.exitFullscreen();
-        else document.documentElement.requestFullscreen?.();
-      } }, '⛶ Plein écran')));
-
-  if (session.echauffement) {
-    sheet.append(h('div', { class: 'read-block' }, h('strong', {}, 'Échauffement — '), session.echauffement));
-  }
-  session.items.forEach((it, i) => {
-    const cb = input('checkbox', { 'aria-label': `Exercice ${i + 1} effectué` });
-    const row = h('div', { class: 'read-item' });
-    cb.addEventListener('change', () => {
-      if (cb.checked) { checked.add(i); row.classList.add('checked'); }
-      else { checked.delete(i); row.classList.remove('checked'); }
-    });
-    row.append(cb, h('div', { class: 'ri-body' },
-      h('div', { class: 'ri-name' }, `${i + 1}. ${itemTitle(it)}`),
-      h('div', { class: 'ri-params' }, itemParamsText(it) || '—'),
-      it.notes ? h('div', { class: 'ri-params' }, `Note : ${it.notes}`) : null,
-      it.exercise_id ? h('a', { class: 'small', href: `#/exercices/${it.exercise_id}` }, 'Voir la fiche exercice') : null));
-    sheet.append(row);
-  });
-  if (session.retour_au_calme) {
-    sheet.append(h('div', { class: 'read-block' }, h('strong', {}, 'Retour au calme — '), session.retour_au_calme));
-  }
-  sheet.append(h('p', { class: 'muted small mt' }, `${checked.size}/${session.items.length} exercices cochés — cochez au fur et à mesure pendant la séance, puis marquez la séance « effectuée » depuis le calendrier pour saisir le bilan.`));
-  main.append(sheet);
+  main.append(buildReadSheet(session));
 }

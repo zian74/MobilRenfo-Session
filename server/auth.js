@@ -104,7 +104,8 @@ export function requireMutationSafety(req, res, next) {
   }
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     const ct = req.headers['content-type'] || '';
-    if (!ct.includes('application/json')) {
+    const isMediaUpload = req.path === '/api/media/upload' && (ct.startsWith('image/') || ct.startsWith('video/'));
+    if (!ct.includes('application/json') && !isMediaUpload) {
       return res.status(415).json({ error: 'Content-Type JSON requis' });
     }
   }

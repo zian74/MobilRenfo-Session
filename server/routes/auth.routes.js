@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getDb } from '../db.js';
+import { deleteAllMediaForUser } from '../media.js';
 import {
   hashPassword, verifyPassword, createSession, destroySession, currentUser,
   requireAuth, validateEmail, validatePassword, str, oneOf, strArray,
@@ -101,6 +102,7 @@ router.get('/me/export', requireAuth, (req, res) => {
 
 router.delete('/me', requireAuth, (req, res) => {
   const db = getDb();
+  deleteAllMediaForUser(req.user.id);
   db.prepare('DELETE FROM users WHERE id = ?').run(req.user.id);
   destroySession(req, res);
   res.json({ ok: true });

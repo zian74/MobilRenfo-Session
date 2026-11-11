@@ -1,5 +1,5 @@
-import { get, post, put, del } from '../api.js';
-import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialog, badge, emptyState, loading } from '../ui.js';
+import { get, post, put, del, uploadMedia } from '../api.js';
+import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialog, badge, emptyState, loading, mediaPreview, mediaKey } from '../ui.js';
 
 const CATEGORIES = [['renforcement', 'Renforcement'], ['mobilité', 'Mobilité']];
 const NIVEAUX = [['débutant', 'Débutant'], ['intermédiaire', 'Intermédiaire'], ['avancé', 'Avancé']];
@@ -85,6 +85,7 @@ export async function renderExercises() {
           badge(ex.categorie === 'renforcement' ? 'Renforcement' : 'Mobilité', ex.categorie),
           badge(ex.niveau),
           ex.groupe_musculaire ? badge(ex.groupe_musculaire) : null),
+        ex.media_url ? mediaPreview(ex.media_url, { small: true }) : null,
         h('div', { class: 'meta' }, ...ex.equipement.map((e) => badge(e))),
         h('p', { class: 'small muted', style: 'margin:0' }, paramsLabel(ex)),
         ex.tags.length ? h('div', { class: 'tag-list' }, ...ex.tags.map((t) => h('span', { class: 'tag' }, t))) : null,
@@ -146,6 +147,41 @@ export async function renderExerciseForm(id) {
   const description = textarea({ rows: 5, placeholder: 'Étapes de réalisation, points d’attention…' });
   description.value = ex?.description ?? '';
   const media = input('url', { value: ex?.media_url ?? '', placeholder: 'https://… (image ou vidéo, optionnel)' });
+  const fileInput = input('file', { accept: 'image/*,video/*' });
+  const previewBox = h('div', { class: 'media-box' });
+  function refreshPreview() {
+    clear(previewBox);
+    const url = media.value.trim();
+    if (!url) return;
+    const prev = mediaPreview(url);
+    if (prev) previewBox.append(prev);
+    const key = mediaKey(url);
+    if (key) {
+      previewBox.append(h('button', {
+        class: 'btn small danger', type: 'button',
+        onclick: async () => {
+          try { await del(`/api/media/${key}`); } catch { /* ignore */ }
+          media.value = '';
+          refreshPreview();
+          toast('Média uploadé supprimé', 'success');
+        },
+      }, 'Supprimer le média uploadé'));
+    }
+  }
+  fileInput.addEventListener('change', async () => {
+    const f = fileInput.files?.[0];
+    if (!f) return;
+    fileInput.disabled = true;
+    try {
+      const up = await uploadMedia(f);
+      media.value = up.url;
+      refreshPreview();
+      toast(`Média uploadé (${Math.round(up.size / 1024)} Ko)`, 'success');
+    } catch (e) { toast(e.message, 'error'); }
+    finally { fileInput.disabled = false; fileInput.value = ''; }
+  });
+  media.addEventListener('input', refreshPreview);
+  refreshPreview();
   const series = input('number', { min: 0, max: 1000, value: ex?.series_defaut ?? '' });
   const reps = input('number', { min: 0, max: 10000, value: ex?.repetitions_defaut ?? '' });
   const temps = input('number', { min: 0, placeholder: 'secondes', value: ex?.temps_travail_defaut ?? '' });
@@ -163,6 +199,8 @@ export async function renderExerciseForm(id) {
     field('Équipement', equipement, { hint: 'Valeurs séparées par des virgules' }),
     field('Description des étapes', description),
     field('Média (URL image/vidéo)', media),
+    field('…ou uploader un fichier (image/vidéo, 25 Mo max)', fileInput),
+    previewBox,
     h('h3', { class: 'mt' }, 'Paramètres par défaut'),
     h('div', { class: 'field-row' },
       field('Séries', series), field('Répétitions', reps), field('Temps de travail (s)', temps),

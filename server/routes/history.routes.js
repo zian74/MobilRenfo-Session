@@ -135,6 +135,13 @@ router.get('/stats', (req, res) => {
     )
     .all(...params);
 
+  const perMonth = db
+    .prepare(
+      `SELECT strftime('%Y-%m', p.date) AS mois, COUNT(*) AS n
+       FROM planned_sessions p WHERE ${where} GROUP BY mois ORDER BY mois`
+    )
+    .all(...params);
+
   const repartition = db
     .prepare(
       `SELECT COALESCE(s.type, 'libre') AS type, COUNT(*) AS n
@@ -145,21 +152,47 @@ router.get('/stats', (req, res) => {
 
   const logRows = db
     .prepare(
-      `SELECT l.series_realisees, l.repetitions_realisees, l.charge_utilisee, l.exercice
-       FROM session_logs l JOIN planned_sessions p ON p.id = l.planned_session_id
+      `SELECT l.series_realisees, l.repetitions_realisees, l.charge_utilisee, l.exercice,
+              p.date AS date, e.groupe_musculaire AS groupe
+       FROM session_logs l
+       JOIN planned_sessions p ON p.id = l.planned_session_id
+       LEFT JOIN session_exercises se ON se.id = l.session_exercise_id
+       LEFT JOIN exercises e ON e.id = se.exercise_id
        WHERE ${where}`
     )
     .all(...params);
 
+  const parseCharge = (txt) => {
+    const m = /(\d+(?:[.,]\d+)?)/.exec(txt || '');
+    return m ? parseFloat(m[1].replace(',', '.')) : 0;
+  };
+  const weekOf = (dateStr) => {
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    const monday = new Date(d);
+    monday.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    return monday.toISOString().slice(0, 10);
+  };
+
   let volume = 0;
   let repsTotal = 0;
+  const volumeParSemaine = new Map();
+  const volumeParGroupe = new Map();
+  const progression = new Map();
   for (const l of logRows) {
     const s = l.series_realisees || 0;
     const r = l.repetitions_realisees || 0;
+    const charge = parseCharge(l.charge_utilisee);
+    const v = s * r * charge;
     repsTotal += s * r;
-    const m = /(\d+(?:[.,]\d+)?)/.exec(l.charge_utilisee || '');
-    const charge = m ? parseFloat(m[1].replace(',', '.')) : 0;
-    volume += s * r * charge;
+    volume += v;
+    const wk = weekOf(l.date);
+    volumeParSemaine.set(wk, (volumeParSemaine.get(wk) || 0) + v);
+    if (l.groupe) volumeParGroupe.set(l.groupe, (volumeParGroupe.get(l.groupe) || 0) + v);
+    if (charge > 0 && l.exercice) {
+      if (!progression.has(l.exercice)) progression.set(l.exercice, new Map());
+      const byWeek = progression.get(l.exercice);
+      byWeek.set(wk, Math.max(byWeek.get(wk) || 0, charge));
+    }
   }
 
   const groupes = db
@@ -173,14 +206,40 @@ router.get('/stats', (req, res) => {
     )
     .all(...params);
 
+  const progressionParExercice = [...progression.entries()]
+    .map(([exercice, byWeek]) => ({
+      exercice,
+      points: [...byWeek.entries()].map(([semaine, chargeMax]) => ({ semaine, chargeMax })).sort((a, b) => a.semaine.localeCompare(b.semaine)),
+    }))
+    .sort((a, b) => a.exercice.localeCompare(b.exercice));
+
+  const weekIndex = (wk) => {
+    const [y, w] = wk.split('-').map(Number);
+    return y * 53 + w;
+  };
+  let streakSemaines = 0;
+  if (perWeek.length) {
+    const weeks = perWeek.map((r) => weekIndex(r.semaine)).sort((a, b) => b - a);
+    let expected = weeks[0];
+    for (const w of weeks) {
+      if (w === expected) { streakSemaines++; expected--; }
+      else break;
+    }
+  }
+
   res.json({
     stats: {
       totalSeances: total,
       parSemaine: perWeek,
+      parMois: perMonth,
       repartition,
       volumeTotal: Math.round(volume * 10) / 10,
       repetitionsTotales: repsTotal,
       parGroupeMusculaire: groupes,
+      volumeParSemaine: [...volumeParSemaine.entries()].map(([semaine, volume]) => ({ semaine, volume: Math.round(volume * 10) / 10 })).sort((a, b) => a.semaine.localeCompare(b.semaine)),
+      volumeParGroupe: [...volumeParGroupe.entries()].map(([groupe, volume]) => ({ groupe, volume: Math.round(volume * 10) / 10 })).sort((a, b) => b.volume - a.volume),
+      progressionParExercice,
+      streakSemaines,
     },
   });
 });

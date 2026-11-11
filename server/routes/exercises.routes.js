@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { getDb } from '../db.js';
 import { requireAuth, str, intOrNull, oneOf, strArray, ValidationError, apiError } from '../auth.js';
+import { mediaKeyFromUrl, deleteMediaByKey } from '../media.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -176,8 +177,11 @@ router.post('/:id/favori', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   const id = Number(req.params.id);
-  if (!ownExercise(req, res, id)) return;
+  const row = ownExercise(req, res, id);
+  if (!row) return;
+  const key = mediaKeyFromUrl(row.media_url);
   getDb().prepare('DELETE FROM exercises WHERE id = ? AND user_id = ?').run(id, req.user.id);
+  if (key) deleteMediaByKey(key, req.user.id);
   res.json({ ok: true });
 });
 

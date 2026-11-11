@@ -5,7 +5,7 @@ import { requireAuth, str, oneOf, ValidationError, apiError } from '../auth.js';
 const router = Router();
 router.use(requireAuth);
 
-const RECURRENCES = ['none', 'daily', 'weekly'];
+const RECURRENCES = ['none', 'daily', 'weekly', 'custom'];
 const TYPE_COLORS = { renforcement: '#e05252', mobilité: '#3d9970', mixte: '#3b6fd4', libre: '#8a8f98' };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -27,6 +27,7 @@ function parseRow(row, sessionById) {
   const session = row.session_id && sessionById ? sessionById.get(row.session_id) : null;
   return {
     ...row,
+    jours: (() => { try { return JSON.parse(row.jours || '[]'); } catch { return []; } })(),
     effectuee: !!row.effectuee,
     couleur: row.couleur || (session ? TYPE_COLORS[session.type] || TYPE_COLORS.libre : TYPE_COLORS.libre),
     session_nom: session ? session.nom : '',
@@ -51,24 +52,35 @@ router.get('/', (req, res) => {
 
   const occurrences = [];
   for (const row of rows) {
+    const parsed = parseRow(row, sessionById);
+    const fin = row.fin_recurrence && row.fin_recurrence < to ? row.fin_recurrence : to;
     if (row.recurrence === 'none') {
       if (row.date >= from && row.date <= to) {
-        occurrences.push({ ...parseRow(row, sessionById), occurrenceDate: row.date });
+        occurrences.push({ ...parsed, occurrenceDate: row.date });
       }
       continue;
     }
+    const joursSet = new Set(parsed.jours);
     let cursor = row.date > from ? row.date : from;
     if (row.recurrence === 'weekly') {
       const targetDow = new Date(`${row.date}T00:00:00Z`).getUTCDay();
       const startDow = new Date(`${cursor}T00:00:00Z`).getUTCDay();
-      let delta = (targetDow - startDow + 7) % 7;
+      const delta = (targetDow - startDow + 7) % 7;
       cursor = addDays(cursor, delta);
-    }
-    while (cursor <= to) {
-      if (cursor >= row.date) {
-        occurrences.push({ ...parseRow(row, sessionById), occurrenceDate: cursor });
+    } else if (row.recurrence === 'custom') {
+      while (cursor <= fin && !joursSet.has(new Date(`${cursor}T00:00:00Z`).getUTCDay())) {
+        cursor = addDays(cursor, 1);
       }
-      cursor = addDays(cursor, row.recurrence === 'daily' ? 1 : 7);
+    }
+    while (cursor <= fin) {
+      if (cursor >= row.date) {
+        occurrences.push({ ...parsed, occurrenceDate: cursor });
+      }
+      if (row.recurrence === 'daily') cursor = addDays(cursor, 1);
+      else if (row.recurrence === 'weekly') cursor = addDays(cursor, 7);
+      else {
+        do { cursor = addDays(cursor, 1); } while (cursor <= fin && !joursSet.has(new Date(`${cursor}T00:00:00Z`).getUTCDay()));
+      }
     }
   }
   occurrences.sort((a, b) => a.occurrenceDate.localeCompare(b.occurrenceDate) || (a.heure || '').localeCompare(b.heure || ''));
@@ -96,6 +108,30 @@ function readPlannedBody(req, body, { partial = false } = {}) {
   }
   if (!partial || 'recurrence' in (body ?? {})) {
     out.recurrence = oneOf(str(body?.recurrence, { max: 10 }), RECURRENCES, 'none');
+  }
+  if (!partial || 'jours' in (body ?? {})) {
+    const j = body?.jours;
+    if (j === undefined || j === null) {
+      out.jours = [];
+    } else if (Array.isArray(j) && j.every((d) => Number.isInteger(d) && d >= 0 && d <= 6) && j.length <= 7) {
+      out.jours = [...new Set(j.map(Number))];
+    } else {
+      throw new ValidationError('jours invalide (tableau de jours de semaine 0-6)');
+    }
+    if (out.recurrence === 'custom' && out.jours.length === 0) {
+      throw new ValidationError('La récurrence personnalisée exige au moins un jour');
+    }
+  }
+  if (!partial || 'fin_recurrence' in (body ?? {})) {
+    const f = body?.fin_recurrence;
+    out.fin_recurrence = f === undefined || f === null || f === '' ? null : str(f, { max: 10 });
+    if (out.fin_recurrence !== null && !isValidDate(out.fin_recurrence)) {
+      throw new ValidationError('fin_recurrence invalide (AAAA-MM-JJ)');
+    }
+    const refDate = out.date ?? null;
+    if (out.fin_recurrence !== null && refDate && out.fin_recurrence < refDate) {
+      throw new ValidationError('La fin de récurrence doit être postérieure ou égale à la date de début');
+    }
   }
   if (!partial || 'couleur' in (body ?? {})) out.couleur = str(body?.couleur, { max: 20 });
   if (!partial || 'notes' in (body ?? {})) out.notes = str(body?.notes, { max: 2000 });
@@ -136,9 +172,9 @@ router.post('/', (req, res) => {
     }
     const couleur = resolveColor(db, req.user.id, data.session_id, data.couleur);
     const info = db.prepare(
-      `INSERT INTO planned_sessions (user_id, session_id, titre_libre, date, heure, recurrence, couleur, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(req.user.id, data.session_id, data.titre_libre, data.date, data.heure, data.recurrence, couleur, data.notes || '');
+      `INSERT INTO planned_sessions (user_id, session_id, titre_libre, date, heure, recurrence, jours, fin_recurrence, couleur, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(req.user.id, data.session_id, data.titre_libre, data.date, data.heure, data.recurrence, JSON.stringify(data.jours || []), data.fin_recurrence ?? null, couleur, data.notes || '');
     const row = db.prepare('SELECT * FROM planned_sessions WHERE id = ?').get(info.lastInsertRowid);
     const sessions = db.prepare('SELECT id, nom, type FROM sessions WHERE user_id = ?').all(req.user.id);
     res.status(201).json({ planned: parseRow(row, new Map(sessions.map((s) => [s.id, s]))) });
@@ -161,10 +197,18 @@ router.put('/:id', (req, res) => {
       date: 'date' in data ? data.date : existing.date,
       heure: 'heure' in data ? data.heure : existing.heure,
       recurrence: 'recurrence' in data ? data.recurrence : existing.recurrence,
+      jours: 'jours' in data ? data.jours : JSON.parse(existing.jours || '[]'),
+      fin_recurrence: 'fin_recurrence' in data ? data.fin_recurrence : existing.fin_recurrence,
       couleur: 'couleur' in data ? data.couleur : existing.couleur,
       notes: 'notes' in data ? data.notes : existing.notes,
       effectuee: 'effectuee' in data ? data.effectuee : existing.effectuee,
     };
+    if (merged.recurrence === 'custom' && (!Array.isArray(merged.jours) || merged.jours.length === 0)) {
+      throw new ValidationError('La récurrence personnalisée exige au moins un jour');
+    }
+    if (merged.fin_recurrence && merged.fin_recurrence < merged.date) {
+      throw new ValidationError('La fin de récurrence doit être postérieure ou égale à la date de début');
+    }
     if (!validateSessionRef(db, req.user.id, merged.session_id)) {
       throw new ValidationError('Session associée introuvable');
     }
@@ -174,8 +218,8 @@ router.put('/:id', (req, res) => {
     const couleur = resolveColor(db, req.user.id, merged.session_id, merged.couleur);
     db.prepare(
       `UPDATE planned_sessions SET session_id = ?, titre_libre = ?, date = ?, heure = ?, recurrence = ?,
-        couleur = ?, notes = ?, effectuee = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
-    ).run(merged.session_id, merged.titre_libre, merged.date, merged.heure, merged.recurrence, couleur, merged.notes, merged.effectuee, id, req.user.id);
+        jours = ?, fin_recurrence = ?, couleur = ?, notes = ?, effectuee = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
+    ).run(merged.session_id, merged.titre_libre, merged.date, merged.heure, merged.recurrence, JSON.stringify(merged.jours || []), merged.fin_recurrence ?? null, couleur, merged.notes, merged.effectuee, id, req.user.id);
     const row = db.prepare('SELECT * FROM planned_sessions WHERE id = ?').get(id);
     const sessions = db.prepare('SELECT id, nom, type FROM sessions WHERE user_id = ?').all(req.user.id);
     res.json({ planned: parseRow(row, new Map(sessions.map((s) => [s.id, s]))) });
@@ -183,6 +227,14 @@ router.put('/:id', (req, res) => {
     if (e instanceof ValidationError) return apiError(res, 400, e.message);
     throw e;
   }
+});
+
+router.get('/:id', (req, res) => {
+  const row = ownPlanned(req, res, Number(req.params.id));
+  if (!row) return;
+  const db = getDb();
+  const sessions = db.prepare('SELECT id, nom, type FROM sessions WHERE user_id = ?').all(req.user.id);
+  res.json({ planned: { ...parseRow(row, new Map(sessions.map((s) => [s.id, s]))), occurrenceDate: row.date } });
 });
 
 router.delete('/:id', (req, res) => {

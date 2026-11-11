@@ -92,13 +92,25 @@ CREATE TABLE IF NOT EXISTS planned_sessions (
   titre_libre TEXT NOT NULL DEFAULT '',
   date TEXT NOT NULL,
   heure TEXT,
-  recurrence TEXT NOT NULL DEFAULT 'none' CHECK (recurrence IN ('none','daily','weekly')),
+  recurrence TEXT NOT NULL DEFAULT 'none' CHECK (recurrence IN ('none','daily','weekly','custom')),
+  jours TEXT NOT NULL DEFAULT '[]',
+  fin_recurrence TEXT,
   couleur TEXT NOT NULL DEFAULT '',
   effectuee INTEGER NOT NULL DEFAULT 0,
   notes TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS media (
+  key TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  mime TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_media_user ON media(user_id);
 CREATE INDEX IF NOT EXISTS idx_planned_user_date ON planned_sessions(user_id, date);
 
 CREATE TABLE IF NOT EXISTS session_logs (
@@ -117,6 +129,56 @@ CREATE INDEX IF NOT EXISTS idx_logs_planned ON session_logs(planned_session_id);
 `;
 
 db.exec(schema);
+
+function migrate() {
+  const info = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'planned_sessions'").get();
+  const oldCheck = info && info.sql && info.sql.includes("'none','daily','weekly'") && !info.sql.includes("'custom'");
+  if (oldCheck) {
+    db.exec(`
+      ALTER TABLE planned_sessions RENAME TO planned_sessions_old;
+      CREATE TABLE planned_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        session_id INTEGER REFERENCES sessions(id) ON DELETE SET NULL,
+        titre_libre TEXT NOT NULL DEFAULT '',
+        date TEXT NOT NULL,
+        heure TEXT,
+        recurrence TEXT NOT NULL DEFAULT 'none' CHECK (recurrence IN ('none','daily','weekly','custom')),
+        jours TEXT NOT NULL DEFAULT '[]',
+        fin_recurrence TEXT,
+        couleur TEXT NOT NULL DEFAULT '',
+        effectuee INTEGER NOT NULL DEFAULT 0,
+        notes TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO planned_sessions (id, user_id, session_id, titre_libre, date, heure, recurrence, couleur, effectuee, notes, created_at, updated_at)
+        SELECT id, user_id, session_id, titre_libre, date, heure, recurrence, couleur, effectuee, notes, created_at, updated_at FROM planned_sessions_old;
+      DROP TABLE planned_sessions_old;
+      CREATE INDEX IF NOT EXISTS idx_planned_user_date ON planned_sessions(user_id, date);
+    `);
+  }
+  const cols = db.prepare('PRAGMA table_info(planned_sessions)').all().map((c) => c.name);
+  if (!cols.includes('jours')) {
+    db.exec("ALTER TABLE planned_sessions ADD COLUMN jours TEXT NOT NULL DEFAULT '[]'");
+  }
+  if (!cols.includes('fin_recurrence')) {
+    db.exec('ALTER TABLE planned_sessions ADD COLUMN fin_recurrence TEXT');
+  }
+  const mediaInfo = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'media'").get();
+  if (!mediaInfo) {
+    db.exec(`CREATE TABLE IF NOT EXISTS media (
+      key TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      filename TEXT NOT NULL,
+      mime TEXT NOT NULL,
+      size INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_media_user ON media(user_id);`);
+  }
+}
+migrate();
 
 export function getDb() {
   return db;

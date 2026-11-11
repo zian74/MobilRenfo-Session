@@ -30,8 +30,15 @@ Variables d'environnement : `PORT` (défaut 3000), `HOST` (défaut 127.0.0.1), `
 
 ## Tests
 
-`npm test` couvre les parcours critiques : auth (register/login/logout/erreurs), 401 sans session, CRUD exercices + filtres + isolation entre utilisateurs, création/réordonnancement/duplication de sessions, planification + récurrence + déplacement + bilan, historique + stats, export/suppression RGPD, refus des mutations cross-origin.
+`npm test` couvre les parcours critiques : auth (register/login/logout/erreurs), 401 sans session, CRUD exercices + filtres + isolation entre utilisateurs, création/réordonnancement/duplication de sessions, planification + récurrence + déplacement + bilan, historique + stats, export/suppression RGPD, refus des mutations cross-origin — plus les apports V1.5 : récurrence personnalisée + fin, `GET /api/planned/:id` et isolement, upload/lecture/suppression de médias avec ACL, stats avancées (volume par semaine/groupe, progression, streak).
 
-## Hors périmètre MVP (V2 du CdC)
+## V1.5 (CdC §8)
 
-Partage de sessions par lien, PWA hors ligne, rappels/notifications, import de données, espace coach/athlète, stockage média S3. Le schéma SQL est prêt à évoluer vers PostgreSQL + Prisma si besoin.
+- **Récurrence avancée** : récurrence personnalisée par jours de la semaine (`custom` + `jours`) et date de fin de récurrence (`fin_recurrence`), en plus de « une fois / quotidienne / hebdomadaire ». Migration automatique des anciennes bases (reconstruction de `planned_sessions` si l'ancien CHECK est détecté).
+- **Médias sur les exercices** : upload de fichiers image/vidéo (png, jpg, gif, webp, mp4, webm, mov — 25 Mo max) stockés sur disque (`data/uploads/u<id>/…`, `UPLOAD_DIR` configurable), servis en privé via `/api/media/<key>` avec contrôle d propriétaire, aperçus dans la bibliothèque et le formulaire, suppression du média liée à la suppression de l'exercice ou du compte. L'URL externe reste possible.
+- **Mode « séance du jour »** : route `#/seance/:plannedId` — fiche en mode lecture (cases à cocher, plein écran, impression) avec bouton « Marquer effectuée + bilan » intégré (bilan par exercice : séries/répétitions/charge réalisées, sensation, commentaire).
+- **Statistiques avancées** : volume par semaine et par groupe musculaire (barres), progression des charges par exercice, série de semaines consécutives, séances par mois — en plus des stats MVP.
+
+## Hors périmètre (V2 du CdC)
+
+Partage de sessions par lien, PWA hors ligne, rappels/notifications, import de données, espace coach/athlète, stockage média S3 (le stockage local uploadé peut être remplacé par un bucket S3 compatible). Le schéma SQL est prêt à évoluer vers PostgreSQL + Prisma si besoin.

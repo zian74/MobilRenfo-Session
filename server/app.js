@@ -9,6 +9,7 @@ import exerciseRoutes from './routes/exercises.routes.js';
 import sessionRoutes from './routes/sessions.routes.js';
 import plannedRoutes from './routes/planned.routes.js';
 import historyRoutes from './routes/history.routes.js';
+import mediaRoutes from './routes/media.routes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -16,6 +17,7 @@ const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
+  app.use(express.raw({ type: ['image/*', 'video/*'], limit: '25mb' }));
   app.use(express.json({ limit: '256kb' }));
   app.use(cookieParser());
   app.use(requireMutationSafety);
@@ -24,6 +26,7 @@ export function createApp() {
   app.use('/api/exercises', exerciseRoutes);
   app.use('/api/sessions', sessionRoutes);
   app.use('/api/planned', plannedRoutes);
+  app.use('/api/media', mediaRoutes);
   app.use('/api', historyRoutes);
 
   app.use((req, res, next) => {
