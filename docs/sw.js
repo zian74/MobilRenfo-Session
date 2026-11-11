@@ -1,7 +1,8 @@
-const CACHE = 'mrs-shell-v1';
+const CACHE = 'mrs-shell-v2';
 const ASSETS = [
   './',
   'index.html',
+  '404.html',
   'manifest.webmanifest',
   'css/app.css',
   'icons/icon-192.png',
@@ -26,7 +27,9 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then((cache) => cache.addAll(ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -41,26 +44,29 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) return;
+
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((cache) => cache.put('index.html', copy));
-        return res;
-      }).catch(() => caches.match('index.html'))
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put('index.html', copy));
+          return res;
+        })
+        .catch(() => caches.match('index.html').then((r) => r || caches.match('./')))
     );
     return;
   }
+
   event.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req).then((res) => {
+    fetch(req)
+      .then((res) => {
         if (res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then((cache) => cache.put(req, copy));
         }
         return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
+      })
+      .catch(() => caches.match(req).then((cached) => cached || Response.error()))
   );
 });

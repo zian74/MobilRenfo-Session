@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>MobilRenfo-Session</title>
+  <meta name="robots" content="noindex">
+</head>
+<body>
+  <p>Redirection vers l’application… <a id="fallback" href="./index.html">Ouvrir MobilRenfo-Session</a></p>
+  <script>
+    (function () {
+      var parts = location.pathname.split('/').filter(Boolean);
+      var repo = parts[0] || '';
+      var sub = parts.slice(1).join('/').replace(/\/+$/, '');
+      var target = '/' + repo + '/index.html' + (sub ? '#/' + sub : '');
+      location.replace(target);
+    })();
+  </script>
+</body>
+</html>
