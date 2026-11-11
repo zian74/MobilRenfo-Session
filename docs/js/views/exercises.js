@@ -3,6 +3,7 @@ import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialo
 
 const CATEGORIES = [['renforcement', 'Renforcement'], ['mobilité', 'Mobilité']];
 const NIVEAUX = [['débutant', 'Débutant'], ['intermédiaire', 'Intermédiaire'], ['avancé', 'Avancé']];
+const ACTIVITES = [['générale', 'Générale'], ['course à pied', 'Course à pied'], ['trail', 'Trail'], ['golf', 'Golf']];
 const SORTS = [['recent', 'Modifiés récemment'], ['nom', 'Nom A → Z'], ['ancien', 'Plus anciens'], ['favori', 'Favoris d’abord']];
 
 function paramsLabel(ex) {
@@ -24,15 +25,16 @@ export async function renderExercises() {
 
   const q = input('search', { placeholder: 'Rechercher (nom, tag, description)…', 'aria-label': 'Recherche plein texte' });
   const cat = select([['', 'Toutes catégories'], ...CATEGORIES]);
+  const act = select([['', 'Toutes activités'], ...ACTIVITES]);
   const groupe = select([['', 'Tous groupes']]);
   const equip = select([['', 'Tout équipement']]);
   const niv = select([['', 'Tous niveaux'], ...NIVEAUX]);
   const fav = select([['', 'Tous'], ['1', 'Favoris uniquement']]);
-  const sort = select(SORTS, { value: 'recent' });
+  const sort = select(SORTS, { value: 'nom' });
 
   const toolbar = h('div', { class: 'toolbar card' },
     h('div', { class: 'field', style: 'flex:1 1 220px' }, h('label', { class: 'label', for: q.id = 'q' }, 'Recherche'), q),
-    field('Catégorie', cat), field('Groupe musculaire', groupe), field('Équipement', equip),
+    field('Catégorie', cat), field('Activité', act), field('Groupe musculaire', groupe), field('Équipement', equip),
     field('Niveau', niv), field('Favoris', fav), field('Tri', sort));
   main.append(toolbar);
 
@@ -49,6 +51,7 @@ export async function renderExercises() {
     const qs = new URLSearchParams();
     if (q.value.trim()) qs.set('q', q.value.trim());
     if (cat.value) qs.set('categorie', cat.value);
+    if (act.value) qs.set('activite', act.value);
     if (groupe.value) qs.set('groupe', groupe.value);
     if (equip.value) qs.set('equipement', equip.value);
     if (niv.value) qs.set('niveau', niv.value);
@@ -83,6 +86,7 @@ export async function renderExercises() {
         h('div', { class: 'row' }, h('h3', {}, ex.nom), h('div', { style: 'margin-left:auto' }, star)),
         h('div', { class: 'meta' },
           badge(ex.categorie === 'renforcement' ? 'Renforcement' : 'Mobilité', ex.categorie),
+          badge(ACTIVITES.find(([v]) => v === (ex.activite || 'générale'))?.[1] ?? 'Générale'),
           badge(ex.niveau),
           ex.groupe_musculaire ? badge(ex.groupe_musculaire) : null),
         ex.media_url ? mediaPreview(ex.media_url, { small: true }) : null,
@@ -110,7 +114,7 @@ export async function renderExercises() {
 
   let debounce;
   q.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(load, 200); });
-  for (const el of [cat, groupe, equip, niv, fav, sort]) el.addEventListener('change', load);
+  for (const el of [cat, act, groupe, equip, niv, fav, sort]) el.addEventListener('change', load);
   await load();
 }
 
@@ -137,6 +141,7 @@ export async function renderExerciseForm(id) {
 
   const nom = input('text', { required: true, maxlength: 120, value: ex?.nom ?? '' });
   const categorie = select(CATEGORIES, { value: ex?.categorie ?? 'renforcement' });
+  const activite = select(ACTIVITES, { value: ex?.activite ?? 'générale' });
   const groupe = input('text', { maxlength: 80, list: 'groupes-list', value: ex?.groupe_musculaire ?? '', placeholder: 'ex. pectoraux, chaîne postérieure, hanches' });
   const datalist = h('datalist', { id: 'groupes-list' });
   try {
@@ -198,7 +203,7 @@ export async function renderExerciseForm(id) {
   const form = h('form', { class: 'card' });
   form.append(err,
     field('Nom de l’exercice *', nom),
-    h('div', { class: 'field-row' }, field('Catégorie', categorie), field('Niveau', niveau), field('Groupe musculaire', groupe)),
+    h('div', { class: 'field-row' }, field('Catégorie', categorie), field('Activité', activite), field('Niveau', niveau), field('Groupe musculaire', groupe)),
     field('Équipement', equipement, { hint: 'Valeurs séparées par des virgules' }),
     field('Description des étapes', description),
     field('Média (URL image/vidéo)', media),
@@ -224,6 +229,7 @@ export async function renderExerciseForm(id) {
     const body = {
       nom: nom.value.trim(),
       categorie: categorie.value,
+      activite: activite.value,
       groupe_musculaire: groupe.value.trim(),
       niveau: niveau.value,
       equipement: parseList(equipement.value),

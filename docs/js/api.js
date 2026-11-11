@@ -10,6 +10,7 @@ export class ApiError extends Error {
 
 const DATA_KEY = 'mrs-data-v1';
 const CATEGORIES = ['renforcement', 'mobilité'];
+const ACTIVITES = ['générale', 'course à pied', 'trail', 'golf'];
 const NIVEAUX = ['débutant', 'intermédiaire', 'avancé'];
 const TYPES = ['renforcement', 'mobilité', 'mixte'];
 const RECURRENCES = ['none', 'daily', 'weekly', 'custom'];
@@ -99,6 +100,7 @@ function parseExerciseInput(body) {
   return {
     nom: str(body?.nom, { max: 120, required: true }),
     categorie: oneOf(str(body?.categorie, { max: 30 }), CATEGORIES, 'renforcement'),
+    activite: oneOf(str(body?.activite, { max: 30 }), ACTIVITES, 'générale'),
     groupe_musculaire: str(body?.groupe_musculaire, { max: 80 }),
     niveau: oneOf(str(body?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
     equipement: strArray(body?.equipement, { maxItems: 20, maxLen: 40 }),
@@ -436,15 +438,16 @@ async function route(method, path, body) {
       list = list.filter((e) => [e.nom, e.description, e.groupe_musculaire, ...e.tags].join(' ').toLowerCase().includes(needle));
     }
     if (q.get('categorie') && CATEGORIES.includes(q.get('categorie'))) list = list.filter((e) => e.categorie === q.get('categorie'));
+    if (q.get('activite') && ACTIVITES.includes(q.get('activite'))) list = list.filter((e) => (e.activite || 'générale') === q.get('activite'));
     if (q.get('niveau') && NIVEAUX.includes(q.get('niveau'))) list = list.filter((e) => e.niveau === q.get('niveau'));
     if (q.get('groupe')) list = list.filter((e) => e.groupe_musculaire === q.get('groupe'));
     if (q.get('equipement')) list = list.filter((e) => e.equipement.includes(q.get('equipement')));
     if (q.get('favori') === '1') list = list.filter((e) => e.favori);
     const sort = q.get('sort');
-    if (sort === 'nom') list.sort((a, b) => a.nom.localeCompare(b.nom));
-    else if (sort === 'ancien') list.sort((a, b) => a.id - b.id);
+    if (sort === 'ancien') list.sort((a, b) => a.id - b.id);
     else if (sort === 'favori') list.sort((a, b) => (b.favori ? 1 : 0) - (a.favori ? 1 : 0) || a.nom.localeCompare(b.nom));
-    else list.sort((a, b) => (b.updated_at - a.updated_at) || b.id - a.id);
+    else if (sort === 'recent') list.sort((a, b) => (b.updated_at - a.updated_at) || b.id - a.id);
+    else list.sort((a, b) => a.nom.localeCompare(b.nom));
     return { exercises: list };
   }
   if (p === '/api/exercises' && method === 'POST') {

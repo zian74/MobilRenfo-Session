@@ -8,6 +8,7 @@ router.use(requireAuth);
 
 const CATEGORIES = ['renforcement', 'mobilité'];
 const NIVEAUX = ['débutant', 'intermédiaire', 'avancé'];
+const ACTIVITES = ['générale', 'course à pied', 'trail', 'golf'];
 
 function parseExercise(row) {
   return {
@@ -22,6 +23,7 @@ function readExerciseBody(body) {
   return {
     nom: str(body?.nom, { max: 120, required: true }),
     categorie: oneOf(str(body?.categorie, { max: 30 }), CATEGORIES, 'renforcement'),
+    activite: oneOf(str(body?.activite, { max: 30 }), ACTIVITES, 'générale'),
     groupe_musculaire: str(body?.groupe_musculaire, { max: 80 }),
     niveau: oneOf(str(body?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
     equipement: strArray(body?.equipement, { maxItems: 20, maxLen: 40 }),
@@ -61,6 +63,10 @@ router.get('/', (req, res) => {
     where.push('categorie = ?');
     params.push(req.query.categorie);
   }
+  if (req.query.activite && ACTIVITES.includes(req.query.activite)) {
+    where.push('activite = ?');
+    params.push(req.query.activite);
+  }
   if (req.query.niveau && NIVEAUX.includes(req.query.niveau)) {
     where.push('niveau = ?');
     params.push(req.query.niveau);
@@ -81,7 +87,7 @@ router.get('/', (req, res) => {
     ancien: 'created_at ASC',
     favori: 'favori DESC, nom COLLATE NOCASE ASC',
   };
-  const sort = sorts[req.query.sort] || sorts.recent;
+  const sort = sorts[req.query.sort] || sorts.nom;
 
   const rows = db
     .prepare(`SELECT * FROM exercises WHERE ${where.join(' AND ')} ORDER BY ${sort}, id DESC`)
@@ -111,11 +117,11 @@ router.post('/', (req, res) => {
     const data = readExerciseBody(req.body);
     const db = getDb();
     const info = db.prepare(
-      `INSERT INTO exercises (user_id, nom, categorie, groupe_musculaire, niveau, equipement, description, media_url,
+      `INSERT INTO exercises (user_id, nom, categorie, activite, groupe_musculaire, niveau, equipement, description, media_url,
         series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, delai_debut_defaut, charge_conseille, tags, favori)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
-      req.user.id, data.nom, data.categorie, data.groupe_musculaire, data.niveau,
+      req.user.id, data.nom, data.categorie, data.activite, data.groupe_musculaire, data.niveau,
       JSON.stringify(data.equipement), data.description, data.media_url,
       data.series_defaut, data.repetitions_defaut, data.temps_travail_defaut, data.repos_defaut, data.delai_debut_defaut,
       data.charge_conseille, JSON.stringify(data.tags), data.favori
@@ -134,11 +140,11 @@ router.put('/:id', (req, res) => {
     if (!ownExercise(req, res, id)) return;
     const data = readExerciseBody(req.body);
     getDb().prepare(
-      `UPDATE exercises SET nom = ?, categorie = ?, groupe_musculaire = ?, niveau = ?, equipement = ?, description = ?,
+      `UPDATE exercises SET nom = ?, categorie = ?, activite = ?, groupe_musculaire = ?, niveau = ?, equipement = ?, description = ?,
         media_url = ?, series_defaut = ?, repetitions_defaut = ?, temps_travail_defaut = ?, repos_defaut = ?,
         delai_debut_defaut = ?, charge_conseille = ?, tags = ?, favori = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
     ).run(
-      data.nom, data.categorie, data.groupe_musculaire, data.niveau,
+      data.nom, data.categorie, data.activite, data.groupe_musculaire, data.niveau,
       JSON.stringify(data.equipement), data.description, data.media_url,
       data.series_defaut, data.repetitions_defaut, data.temps_travail_defaut, data.repos_defaut, data.delai_debut_defaut,
       data.charge_conseille, JSON.stringify(data.tags), data.favori, id, req.user.id
@@ -157,9 +163,9 @@ router.post('/:id/duplicate', (req, res) => {
   if (!row) return;
   const db = getDb();
   const info = db.prepare(
-    `INSERT INTO exercises (user_id, nom, categorie, groupe_musculaire, niveau, equipement, description, media_url,
+    `INSERT INTO exercises (user_id, nom, categorie, activite, groupe_musculaire, niveau, equipement, description, media_url,
       series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, delai_debut_defaut, charge_conseille, tags, favori)
-     SELECT user_id, nom || ' (copie)', categorie, groupe_musculaire, niveau, equipement, description, media_url,
+     SELECT user_id, nom || ' (copie)', categorie, activite, groupe_musculaire, niveau, equipement, description, media_url,
       series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, delai_debut_defaut, charge_conseille, tags, 0
      FROM exercises WHERE id = ? AND user_id = ?`
   ).run(id, req.user.id);
