@@ -39,6 +39,14 @@ Variables d'environnement : `PORT` (défaut 3000), `HOST` (défaut 127.0.0.1), `
 - **Mode « séance du jour »** : route `#/seance/:plannedId` — fiche en mode lecture (cases à cocher, plein écran, impression) avec bouton « Marquer effectuée + bilan » intégré (bilan par exercice : séries/répétitions/charge réalisées, sensation, commentaire).
 - **Statistiques avancées** : volume par semaine et par groupe musculaire (barres), progression des charges par exercice, série de semaines consécutives, séances par mois — en plus des stats MVP.
 
+## Durcissement sécurité (avant prod)
+
+- **En-têtes HTTP** sur toutes les réponses : CSP stricte (`default-src 'self'`, `script-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`…), `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Cross-Origin-Opener-Policy`, `Permissions-Policy` (caméra/micro/GPS désactivés), et **HSTS** activé automatiquement en production/HTTPS.
+- **Rate limiting** en mémoire (fenêtre glissante, `server/ratelimit.js`) : login 10/15 min/IP, inscription 5/15 min/IP, upload 20/h/utilisateur, API 600/5 min/utilisateur — réponse `429` + `Retry-After`. Limites surchargeables par variables `RATE_LIMIT_*`. En déploiement multi-instance, remplacer par un store partagé (Redis).
+- **Révocation globale des sessions** : `DELETE /api/auth/sessions` + bouton « Déconnecter toutes les sessions » dans le profil.
+- `npm audit` : 0 vulnérabilité. Nouveaux tests `test/security.test.js` : en-têtes HTTP, 429 login, 429 upload, logout-all.
+- À faire côté infra avant mise en ligne : TLS en terminaison (HSTS alors actif), proxy inverse, sauvegardes quotidiennes de `data/app.db`.
+
 ## Hors périmètre (V2 du CdC)
 
 Partage de sessions par lien, PWA hors ligne, rappels/notifications, import de données, espace coach/athlète, stockage média S3 (le stockage local uploadé peut être remplacé par un bucket S3 compatible). Le schéma SQL est prêt à évoluer vers PostgreSQL + Prisma si besoin.

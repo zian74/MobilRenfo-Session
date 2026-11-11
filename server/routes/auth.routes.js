@@ -6,6 +6,7 @@ import {
   requireAuth, validateEmail, validatePassword, str, oneOf, strArray,
   ValidationError, apiError,
 } from '../auth.js';
+import { loginLimiter, registerLimiter } from '../ratelimit.js';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ function publicUser(u) {
   return { id: u.id, email: u.email, name: u.name, niveau: u.niveau, objectifs: u.objectifs, createdAt: u.createdAt };
 }
 
-router.post('/register', (req, res) => {
+router.post('/register', registerLimiter, (req, res) => {
   try {
     const email = str(req.body?.email, { max: 254, required: true }).toLowerCase();
     const password = req.body?.password;
@@ -37,7 +38,7 @@ router.post('/register', (req, res) => {
   }
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   try {
     const email = str(req.body?.email, { max: 254, required: true }).toLowerCase();
     const password = req.body?.password;
@@ -62,6 +63,12 @@ router.post('/logout', (req, res) => {
 
 router.get('/me', requireAuth, (req, res) => {
   res.json({ user: publicUser(req.user) });
+});
+
+router.delete('/sessions', requireAuth, (req, res) => {
+  getDb().prepare('DELETE FROM auth_sessions WHERE user_id = ?').run(req.user.id);
+  destroySession(req, res);
+  res.json({ ok: true });
 });
 
 router.put('/me', requireAuth, (req, res) => {

@@ -7,6 +7,10 @@ import path from 'node:path';
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mrs-v15-'));
 process.env.DB_PATH = path.join(tmpDir, 'test.db');
 process.env.UPLOAD_DIR = path.join(tmpDir, 'uploads');
+process.env.RATE_LIMIT_REGISTER_MAX = '1000';
+process.env.RATE_LIMIT_LOGIN_MAX = '1000';
+process.env.RATE_LIMIT_UPLOAD_MAX = '1000';
+process.env.RATE_LIMIT_API_MAX = '100000';
 
 const { createApp } = await import('../server/app.js');
 

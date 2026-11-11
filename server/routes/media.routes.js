@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import fs from 'node:fs';
 import { requireAuth, apiError } from '../auth.js';
+import { uploadLimiter } from '../ratelimit.js';
 import { saveMediaFile, mediaRow, mediaFilePathFor, deleteMediaByKey, MAX_MEDIA_SIZE } from '../media.js';
 
 const router = Router();
 router.use(requireAuth);
 
-router.post('/upload', (req, res) => {
+router.post('/upload', uploadLimiter, (req, res) => {
   try {
     const ct = String(req.headers['content-type'] || '');
     if (!ct.startsWith('image/') && !ct.startsWith('video/')) {

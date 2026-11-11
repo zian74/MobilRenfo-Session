@@ -78,7 +78,7 @@ export function currentUser(req) {
 }
 
 export function requireAuth(req, res, next) {
-  const user = currentUser(req);
+  const user = req.user || currentUser(req);
   if (!user) {
     return res.status(401).json({ error: 'Non authentifié' });
   }
