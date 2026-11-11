@@ -49,9 +49,16 @@ function renderHeader() {
   header.append(inner);
 }
 
+function currentRoute() {
+  if (location.hash && location.hash.length > 1) return location.hash;
+  const m = location.pathname.match(/^\/[^/]+\/(.*)$/);
+  const rest = m ? m[1].replace(/\/+$/, '') : '';
+  return rest ? `#/${rest}` : '#/calendrier';
+}
+
 async function route() {
   const main = document.getElementById('app-main');
-  const hash = location.hash || '#/calendrier';
+  const hash = currentRoute();
   renderHeader();
   clear(main);
   const match = routes.find(([re]) => re.test(hash));
@@ -77,7 +84,7 @@ async function boot() {
     });
   }
   startNotificationScheduler();
-  if (!location.hash) location.hash = '#/calendrier';
+  if (!location.hash) location.hash = currentRoute();
   await route();
 }
 
