@@ -69,16 +69,21 @@ export async function renderSessionLive(sessionId) {
   }
   clear(main);
 
-  const steps = (session.items || []).map((it) => ({
-    title: it.exercise_nom || it.nom_libre || 'Bloc libre',
-    series: it.series > 0 ? it.series : 1,
-    reps: it.repetitions || 0,
-    work: it.temps_travail > 0 ? it.temps_travail : (it.repetitions > 0 ? it.repetitions * TEMPS_PAR_REP : 0),
-    workEstime: it.temps_travail > 0 ? false : it.repetitions > 0,
-    rest: it.repos || 0,
-    charge: it.charge || '',
-    notes: it.notes || '',
-  }));
+  const steps = (session.items || []).map((it) => {
+    const rawSeries = it.series ?? it.exercise_series_defaut ?? 1;
+    const reps = it.repetitions ?? it.exercise_repetitions_defaut ?? 0;
+    const temps = it.temps_travail ?? it.exercise_temps_travail_defaut ?? 0;
+    return {
+      title: it.exercise_nom || it.nom_libre || 'Bloc libre',
+      series: rawSeries > 0 ? rawSeries : 1,
+      reps,
+      work: temps > 0 ? temps : (reps > 0 ? reps * TEMPS_PAR_REP : 0),
+      workEstime: temps > 0 ? false : reps > 0,
+      rest: it.repos ?? it.exercise_repos_defaut ?? 0,
+      charge: it.charge || it.exercise_charge_conseille || '',
+      notes: it.notes || '',
+    };
+  });
   if (!steps.length) {
     main.append(h('div', { class: 'card' },
       emptyState('Cette session ne contient aucun exercice.', h('a', { class: 'btn primary', href: `#/sessions/${session.id}` }, '← Modifier la session'))));

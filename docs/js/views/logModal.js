@@ -12,9 +12,9 @@ export async function openLogModal(p, session, { onSaved } = {}) {
   if (!prevLogs.length && session) {
     prevLogs = items.map((it) => ({
       session_exercise_id: it.id,
-      series_realisees: it.series ?? null,
-      repetitions_realisees: it.repetitions ?? null,
-      charge_utilisee: it.charge ?? '',
+      series_realisees: it.series ?? it.exercise_series_defaut ?? null,
+      repetitions_realisees: it.repetitions ?? it.exercise_repetitions_defaut ?? null,
+      charge_utilisee: it.charge || it.exercise_charge_conseille || '',
     }));
   }
 

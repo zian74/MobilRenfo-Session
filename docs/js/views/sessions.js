@@ -9,11 +9,16 @@ function itemTitle(it) {
 
 function itemParamsText(it) {
   const parts = [];
-  if (it.series) parts.push(`${it.series} séries`);
-  if (it.repetitions) parts.push(`${it.repetitions} rép.`);
-  if (it.temps_travail) parts.push(`${it.temps_travail} s`);
-  if (it.repos) parts.push(`repos ${it.repos} s`);
-  if (it.charge) parts.push(it.charge);
+  const series = it.series ?? it.exercise_series_defaut;
+  const reps = it.repetitions ?? it.exercise_repetitions_defaut;
+  const temps = it.temps_travail ?? it.exercise_temps_travail_defaut;
+  const repos = it.repos ?? it.exercise_repos_defaut;
+  const charge = it.charge || it.exercise_charge_conseille || '';
+  if (series) parts.push(`${series} séries`);
+  if (reps) parts.push(`${reps} rép.`);
+  if (temps) parts.push(`${temps} s`);
+  if (repos) parts.push(`repos ${repos} s`);
+  if (charge) parts.push(charge);
   return parts.join(' · ');
 }
 
@@ -81,7 +86,7 @@ async function openExercisePicker(onPick) {
     }
     clear(list);
     if (!data.exercises.length) {
-      list.append(emptyState('Aucun exercice correspondant.', h('a', { class: 'btn small primary', href: '#/exercices/nouveau', onclick: () => m.close() }, '+ Créer un exercice')));
+      list.append(emptyState('Aucun exercice correspondant. Créez-le depuis la bibliothèque « Exercices ».'));
       return;
     }
     for (const ex of data.exercises) {
@@ -102,11 +107,11 @@ async function openExercisePicker(onPick) {
 }
 
 function itemEditor(it, index, onChange, onRemove) {
-  const series = input('number', { min: 0, value: it.series ?? '', placeholder: 'séries' });
-  const reps = input('number', { min: 0, value: it.repetitions ?? '', placeholder: 'rép.' });
-  const temps = input('number', { min: 0, value: it.temps_travail ?? '', placeholder: 's' });
-  const repos = input('number', { min: 0, value: it.repos ?? '', placeholder: 's' });
-  const charge = input('text', { value: it.charge ?? '', placeholder: 'charge', maxlength: 60 });
+  const series = input('number', { min: 0, value: it.series ?? '', placeholder: it.exercise_series_defaut != null ? `hérité : ${it.exercise_series_defaut}` : 'séries' });
+  const reps = input('number', { min: 0, value: it.repetitions ?? '', placeholder: it.exercise_repetitions_defaut != null ? `hérité : ${it.exercise_repetitions_defaut}` : 'rép.' });
+  const temps = input('number', { min: 0, value: it.temps_travail ?? '', placeholder: it.exercise_temps_travail_defaut != null ? `hérité : ${it.exercise_temps_travail_defaut} s` : 's' });
+  const repos = input('number', { min: 0, value: it.repos ?? '', placeholder: it.exercise_repos_defaut != null ? `hérité : ${it.exercise_repos_defaut} s` : 's' });
+  const charge = input('text', { value: it.charge ?? '', placeholder: it.exercise_charge_conseille ? `hérité : ${it.exercise_charge_conseille}` : 'charge', maxlength: 60 });
   const notes = input('text', { value: it.notes ?? '', placeholder: 'notes', maxlength: 1000 });
   const read = () => {
     onChange(index, {
@@ -209,11 +214,11 @@ export async function renderSessionForm(id) {
       exercise_nom: ex.nom,
       exercise_categorie: ex.categorie,
       nom_libre: '',
-      series: ex.series_defaut,
-      repetitions: ex.repetitions_defaut,
-      temps_travail: ex.temps_travail_defaut,
-      repos: ex.repos_defaut,
-      charge: ex.charge_conseille || '',
+      series: null,
+      repetitions: null,
+      temps_travail: null,
+      repos: null,
+      charge: '',
       notes: '',
     });
     renderItems();
