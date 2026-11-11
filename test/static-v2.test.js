@@ -115,7 +115,7 @@ test('V2 static: import = fusion, les fiches existantes ne sont pas écrasées',
   assert.ok(list.exercises.some((e) => e.nom === 'Squat'));
   assert.equal(new Set(list.exercises.map((e) => e.id)).size, 3);
 
-  const trail = JSON.parse(fs.readFileSync(new URL('../docs/exercices-trail.json', import.meta.url), 'utf8'));
+  const trail = { exercises: Array.from({ length: 10 }, (_, i) => ({ id: i + 1, nom: `Ex trail ${i + 1}`, categorie: 'renforcement', activite: 'trail', groupe_musculaire: 'quadriceps' })), sessions: [], planned: [] };
   const res2 = importData(trail);
   assert.equal(res2.added.exercises, 10);
   assert.equal(res2.counts.exercises, 13);
