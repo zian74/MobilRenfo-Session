@@ -155,6 +155,23 @@ function attachExerciseInfo(item) {
     exercise_categorie: ex?.categorie ?? null,
     exercise_groupe: ex?.groupe_musculaire ?? '',
     exercise_equipement: ex?.equipement ?? [],
+    exercise_series_defaut: ex?.series_defaut ?? null,
+    exercise_repetitions_defaut: ex?.repetitions_defaut ?? null,
+    exercise_temps_travail_defaut: ex?.temps_travail_defaut ?? null,
+    exercise_repos_defaut: ex?.repos_defaut ?? null,
+    exercise_charge_conseille: ex?.charge_conseille ?? '',
+  };
+}
+
+function resolveItemDefaults(item) {
+  const ex = item.exercise_id ? data.exercises.find((e) => e.id === item.exercise_id) : null;
+  return {
+    ...item,
+    series: item.series ?? ex?.series_defaut ?? null,
+    repetitions: item.repetitions ?? ex?.repetitions_defaut ?? null,
+    temps_travail: item.temps_travail ?? ex?.temps_travail_defaut ?? null,
+    repos: item.repos ?? ex?.repos_defaut ?? null,
+    charge: item.charge || ex?.charge_conseille || '',
   };
 }
 
@@ -511,7 +528,7 @@ async function route(method, path, body) {
     const session = {
       id: nextId('session'),
       nom: parsed.nom, description: parsed.description, type: parsed.type,
-      duree_estimee: parsed.duree_estimee ?? estimatedDuration(parsed.items),
+      duree_estimee: parsed.duree_estimee ?? estimatedDuration(parsed.items.map(resolveItemDefaults)),
       echauffement: parsed.echauffement, retour_au_calme: parsed.retour_au_calme,
       partage: parsed.partage, items: [], created_at: now, updated_at: now,
     };
@@ -531,7 +548,7 @@ async function route(method, path, body) {
     const parsed = parseSessionInput(body);
     Object.assign(s, {
       nom: parsed.nom, description: parsed.description, type: parsed.type,
-      duree_estimee: parsed.duree_estimee ?? estimatedDuration(parsed.items),
+      duree_estimee: parsed.duree_estimee ?? estimatedDuration(parsed.items.map(resolveItemDefaults)),
       echauffement: parsed.echauffement, retour_au_calme: parsed.retour_au_calme, partage: parsed.partage,
       updated_at: Date.now(),
     });

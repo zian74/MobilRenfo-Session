@@ -17,7 +17,10 @@ function sessionWithExercises(db, id, userId) {
   const items = db
     .prepare(
       `SELECT se.*, e.nom AS exercise_nom, e.categorie AS exercise_categorie, e.groupe_musculaire AS exercise_groupe,
-              e.niveau AS exercise_niveau, e.equipement AS exercise_equipement
+              e.niveau AS exercise_niveau, e.equipement AS exercise_equipement,
+              e.series_defaut AS exercise_series_defaut, e.repetitions_defaut AS exercise_repetitions_defaut,
+              e.temps_travail_defaut AS exercise_temps_travail_defaut, e.repos_defaut AS exercise_repos_defaut,
+              e.charge_conseille AS exercise_charge_conseille
        FROM session_exercises se
        LEFT JOIN exercises e ON e.id = se.exercise_id
        WHERE se.session_id = ? ORDER BY se.ordre ASC, se.id ASC`
@@ -74,6 +77,20 @@ function saveItems(db, sessionId, userId, items) {
   tx();
 }
 
+function resolveItemDefaults(db, userId, it) {
+  const ex = it.exercise_id
+    ? db.prepare('SELECT series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, charge_conseille FROM exercises WHERE id = ? AND user_id = ?').get(it.exercise_id, userId)
+    : null;
+  return {
+    ...it,
+    series: it.series ?? ex?.series_defaut ?? null,
+    repetitions: it.repetitions ?? ex?.repetitions_defaut ?? null,
+    temps_travail: it.temps_travail ?? ex?.temps_travail_defaut ?? null,
+    repos: it.repos ?? ex?.repos_defaut ?? null,
+    charge: it.charge || ex?.charge_conseille || '',
+  };
+}
+
 function estimatedDuration(items) {
   let total = 0;
   for (const it of items) {
@@ -122,7 +139,7 @@ router.post('/', (req, res) => {
   try {
     const data = readSessionBody(req.body);
     const db = getDb();
-    const duree = data.duree_estimee ?? estimatedDuration(data.items);
+    const duree = data.duree_estimee ?? estimatedDuration(data.items.map((it) => resolveItemDefaults(db, req.user.id, it)));
     const info = db.prepare(
       `INSERT INTO sessions (user_id, nom, description, type, duree_estimee, echauffement, retour_au_calme, partage)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
@@ -144,7 +161,7 @@ router.put('/:id', (req, res) => {
       return apiError(res, 404, 'Session introuvable');
     }
     const data = readSessionBody(req.body);
-    const duree = data.duree_estimee ?? estimatedDuration(data.items);
+    const duree = data.duree_estimee ?? estimatedDuration(data.items.map((it) => resolveItemDefaults(db, req.user.id, it)));
     db.prepare(
       `UPDATE sessions SET nom = ?, description = ?, type = ?, duree_estimee = ?, echauffement = ?,
         retour_au_calme = ?, partage = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
