@@ -46,6 +46,7 @@ export async function renderSessions() {
         badge(formatDuree(s.duree_estimee))),
       s.description ? h('p', { class: 'small muted', style: 'margin:0' }, s.description) : null,
       h('div', { class: 'card-actions' },
+        h('a', { class: 'btn small primary', href: `#/sessions/${s.id}/demarrer` }, '▶ Démarrer'),
         h('a', { class: 'btn small', href: `#/sessions/${s.id}/lecture` }, '👁 Mode lecture'),
         h('a', { class: 'btn small', href: `#/sessions/${s.id}` }, 'Modifier'),
         h('button', { class: 'btn small', onclick: async () => {
@@ -287,6 +288,7 @@ export function buildReadSheet(session, { extraActions = null, readOnly = false 
       badge(formatDuree(session.duree_estimee)),
       session.description ? h('p', { class: 'muted', style: 'margin:8px 0 0' }, session.description) : null),
     h('div', { class: 'read-actions' },
+      readOnly ? null : h('a', { class: 'btn primary', href: `#/sessions/${session.id}/demarrer` }, '▶ Démarrer la session'),
       readOnly ? null : h('a', { class: 'btn', href: `#/sessions/${session.id}` }, '← Modifier'),
       extraActions,
       h('button', { class: 'btn', onclick: () => window.print() }, '🖨 Imprimer'),

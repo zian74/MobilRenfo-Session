@@ -1,4 +1,4 @@
-const CACHE = 'mrs-shell-v2';
+const CACHE = 'mrs-shell-v3';
 const ASSETS = [
   './',
   'index.html',
@@ -20,6 +20,7 @@ const ASSETS = [
   'js/views/history.js',
   'js/views/logModal.js',
   'js/views/profile.js',
+  'js/views/sessionLive.js',
   'js/views/sessionRun.js',
   'js/views/sessions.js',
   'js/views/shareView.js',
