@@ -84,7 +84,39 @@ export async function renderSessionLive(sessionId) {
       emptyState('Cette session ne contient aucun exercice.', h('a', { class: 'btn primary', href: `#/sessions/${session.id}` }, '← Modifier la session'))));
     return;
   }
+  renderLiveRun({ title: session.nom, steps, countdownAvant: 0, backHash: `#/sessions/${session.id}/lecture`, retourAuCalme: session.retour_au_calme || '' });
+}
 
+export async function renderExerciseLive(exerciseId) {
+  activeRun?.stop();
+  const main = document.getElementById('app-main');
+  clear(main);
+  main.append(loading());
+  let ex;
+  try {
+    ex = (await get(`/api/exercises/${exerciseId}`)).exercise;
+  } catch (e) {
+    clear(main).append(h('div', { class: 'card' }, h('p', {}, e.message)));
+    return;
+  }
+  clear(main);
+  const reps = ex.repetitions_defaut || 0;
+  const delai = Number.isInteger(ex.delai_debut_defaut) && ex.delai_debut_defaut >= 0 ? ex.delai_debut_defaut : COUNTDOWN_AVANT;
+  const steps = [{
+    title: ex.nom,
+    series: ex.series_defaut > 0 ? ex.series_defaut : 1,
+    reps,
+    work: ex.temps_travail_defaut > 0 ? ex.temps_travail_defaut : (reps > 0 ? reps * TEMPS_PAR_REP : 0),
+    workEstime: ex.temps_travail_defaut > 0 ? false : reps > 0,
+    rest: ex.repos_defaut || 0,
+    charge: ex.charge_conseille || '',
+    notes: '',
+  }];
+  renderLiveRun({ title: ex.nom, steps, countdownAvant: delai, backHash: `#/exercices/${exerciseId}`, retourAuCalme: '' });
+}
+
+function renderLiveRun({ title, steps, countdownAvant, backHash, retourAuCalme = '' }) {
+  const main = document.getElementById('app-main');
   const run = {
     audio: createAudio(),
     phase: 'intro',
@@ -140,9 +172,9 @@ export async function renderSessionLive(sessionId) {
 
   function paintControls() {
     clear(controls);
-    const quit = h('a', { class: 'btn small danger', href: `#/sessions/${session.id}/lecture`, onclick: () => run.stop() }, '✕ Quitter');
+    const quit = h('a', { class: 'btn small danger', href: backHash, onclick: () => run.stop() }, '✕ Quitter');
     if (run.phase === 'done') {
-      controls.append(h('a', { class: 'btn primary', href: `#/sessions/${session.id}/lecture`, onclick: () => run.stop() }, '✓ Terminer'), quit);
+      controls.append(h('a', { class: 'btn primary', href: backHash, onclick: () => run.stop() }, '✓ Terminer'), quit);
       return;
     }
     const timed = run.phase !== 'work' || steps[run.ei].work > 0;
@@ -174,7 +206,7 @@ export async function renderSessionLive(sessionId) {
       phaseEl.textContent = 'Séance terminée';
       exEl.textContent = 'Bravo ! 🎉';
       metaEl.textContent = `${steps.length} exercice${steps.length > 1 ? 's' : ''} terminé${steps.length > 1 ? 's' : ''}`;
-      nextEl.textContent = session.retour_au_calme ? `Retour au calme : ${session.retour_au_calme}` : '';
+      nextEl.textContent = retourAuCalme ? `Retour au calme : ${retourAuCalme}` : '';
     } else {
       const it = steps[run.ei];
       phaseEl.textContent = { intro: 'Prépare-toi…', work: 'Travail', rest: 'Repos' }[run.phase];
@@ -289,9 +321,10 @@ export async function renderSessionLive(sessionId) {
   main.append(
     h('div', { class: 'live-run' },
       h('div', { class: 'live-head' },
-        h('div', {}, h('strong', {}, session.nom), ' ', countEl),
-        h('a', { class: 'btn small', href: `#/sessions/${session.id}/lecture`, onclick: () => run.stop() }, '✕ Quitter')),
+        h('div', {}, h('strong', {}, title), ' ', countEl),
+        h('a', { class: 'btn small', href: backHash, onclick: () => run.stop() }, '✕ Quitter')),
       stage));
 
-  startCountdown(COUNTDOWN_AVANT, 'intro');
+  if (countdownAvant > 0) startCountdown(countdownAvant, 'intro');
+  else startWork();
 }
