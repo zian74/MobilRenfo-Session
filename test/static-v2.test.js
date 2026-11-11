@@ -72,3 +72,22 @@ test('régression: les hrefs de navigation commencent par #/ (sinon retour au ca
     assert.ok(src.includes('normalizeHash') || src.includes('startsWith(\'#/\')'), `${p}: normalisation du hash présente`);
   }
 });
+
+test('exemple: docs/exemple-exercices.json est importable (2 exercices de renforcement)', async () => {
+  const fs = await import('node:fs');
+  const json = JSON.parse(fs.readFileSync(new URL('../docs/exemple-exercices.json', import.meta.url), 'utf8'));
+  resetLocalData();
+  const res = importData(json);
+  assert.equal(res.counts.exercises, 2);
+  const list = await get('/api/exercises?categorie=renforcement');
+  assert.equal(list.exercises.length, 2);
+  const squat = list.exercises.find((e) => e.nom === 'Squat');
+  assert.equal(squat.groupe_musculaire, 'quadriceps');
+  assert.equal(squat.series_defaut, 4);
+  assert.equal(squat.favori, true);
+  assert.ok(Array.isArray(squat.tags) && squat.tags.includes('jambes'));
+  const dc = list.exercises.find((e) => e.nom === 'Développé couché');
+  assert.equal(dc.niveau, 'intermédiaire');
+  assert.deepEqual(dc.equipement, ['barre', 'banc', 'haltères']);
+  resetLocalData();
+});

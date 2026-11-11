@@ -52,6 +52,7 @@ Activation (1 fois, côté dépôt) : **Settings → Pages → Build and deploym
 - **PWA hors ligne** : `manifest.webmanifest` + icônes + `sw.js` (cache du shell applicatif, navigation offline) — installable et consultable hors ligne, les données étant déjà locales.
 - **Rappels de séance** : champ « 🔔 Rappel » (minutes avant) sur chaque planification + scheduler de notifications (`js/notifications.js`), activation via le profil.
 - **Partage de fiche par lien en lecture seule** : bouton « 🔗 Copier le lien de partage » en mode lecture → URL `#/partage/<base64url>` décodée côté client, sans serveur.
+- **Fichier d'exemple** : `docs/exemple-exercices.json` (2 exercices de renforcement typiques : Squat, Développé couché) au format d'import/export — téléchargeable sur le site Pages (`/exemple-exercices.json`) et réimportable via Profil → « ⬆ Importer des données (JSON) ».
 - L'API locale (`docs/js/api.js`) reprend la même surface que l'API serveur et est testée sous Node (`test/static.test.js`, `test/static-v2.test.js`, stockage mémoire de repli).
 
 La version serveur (`server/` + `public/`) reste disponible pour un usage avec comptes, via `npm start`.
