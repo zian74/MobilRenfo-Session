@@ -1,0 +1,18 @@
+{
+  "name": "mobilrenfo-session",
+  "version": "1.0.0",
+  "description": "Webapp de création de fiches d'exercices, fiches de session et planification de séances de renforcement musculaire et de mobilité (MVP).",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.3.0"
+  }
+}
