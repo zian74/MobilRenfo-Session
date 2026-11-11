@@ -200,6 +200,13 @@ function parsePlannedInput(body, { partial = false, existing = null } = {}) {
   }
   if (!partial || 'couleur' in b) out.couleur = str(b.couleur, { max: 20 });
   if (!partial || 'notes' in b) out.notes = str(b.notes, { max: 2000 });
+  if ('rappel' in b || !partial) {
+    const r = b.rappel;
+    if (r === undefined || r === null) out.rappel = { actif: false, minutes: 15 };
+    else if (typeof r === 'object' && typeof r.actif === 'boolean') {
+      out.rappel = { actif: r.actif, minutes: intOrNull(r.minutes, { min: 0, max: 1440 }) ?? 15 };
+    } else throw new ApiError(400, 'rappel invalide');
+  }
   if ('effectuee' in b) out.effectuee = !!b.effectuee;
   if (partial && existing) {
     const merged = {
@@ -212,6 +219,7 @@ function parsePlannedInput(body, { partial = false, existing = null } = {}) {
       fin_recurrence: 'fin_recurrence' in out ? out.fin_recurrence : existing.fin_recurrence,
       couleur: 'couleur' in out ? out.couleur : existing.couleur,
       notes: 'notes' in out ? out.notes : existing.notes,
+      rappel: 'rappel' in out ? out.rappel : (existing.rappel ?? { actif: false, minutes: 15 }),
       effectuee: 'effectuee' in out ? out.effectuee : existing.effectuee,
     };
     if (merged.recurrence === 'custom' && (!merged.jours || merged.jours.length === 0)) throw new ApiError(400, 'La récurrence personnalisée exige au moins un jour');
@@ -706,4 +714,85 @@ export function resetLocalData() {
   data = emptyData();
   removeKey(DATA_KEY);
   persist();
+}
+
+function computeSeq() {
+  const max = (arr, k) => arr.reduce((m, x) => Math.max(m, Number(x?.[k]) || 0), 0);
+  return {
+    exercise: max(data.exercises, 'id') + 1,
+    session: max(data.sessions, 'id') + 1,
+    item: max(data.sessions.flatMap((s) => s.items || []), 'id') + 1,
+    planned: max(data.planned, 'id') + 1,
+    log: max(data.planned.flatMap((p) => p.logs || []), 'id') + 1,
+  };
+}
+
+export function importData(obj) {
+  if (!obj || typeof obj !== 'object' || !Array.isArray(obj.exercises) || !Array.isArray(obj.sessions) || !Array.isArray(obj.planned)) {
+    throw new ApiError(400, 'Format d’export invalide (exercises/sessions/planned requis)');
+  }
+  const clean = emptyData();
+  clean.profile = {
+    name: str(obj.profile?.name, { max: 100 }),
+    niveau: oneOf(str(obj.profile?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
+    objectifs: strArray(obj.profile?.objectifs, { maxItems: 10, maxLen: 40 }),
+    createdAt: str(obj.profile?.createdAt, { max: 40 }) || new Date().toISOString(),
+  };
+  clean.exercises = obj.exercises.map((e) => ({ ...parseExerciseInput(e), id: Number(e?.id) || 0, created_at: Number(e?.created_at) || Date.now(), updated_at: Number(e?.updated_at) || Date.now() }));
+  clean.sessions = obj.sessions.map((s) => ({
+    id: Number(s?.id) || 0,
+    nom: str(s?.nom, { max: 120, required: true }),
+    description: str(s?.description, { max: 2000 }),
+    type: oneOf(str(s?.type, { max: 20 }), TYPES, 'mixte'),
+    duree_estimee: intOrNull(s?.duree_estimee, { min: 0, max: 24 * 60 }),
+    echauffement: str(s?.echauffement, { max: 1000 }),
+    retour_au_calme: str(s?.retour_au_calme, { max: 1000 }),
+    partage: oneOf(str(s?.partage, { max: 20 }), ['privée', 'lien'], 'privée'),
+    items: (Array.isArray(s?.items) ? s.items : []).map((it, idx) => ({
+      id: Number(it?.id) || 0,
+      session_id: Number(s?.id) || 0,
+      ordre: idx,
+      exercise_id: it?.exercise_id != null ? Number(it.exercise_id) : null,
+      nom_libre: str(it?.nom_libre, { max: 120 }),
+      series: intOrNull(it?.series, { min: 0, max: 1000 }),
+      repetitions: intOrNull(it?.repetitions, { min: 0, max: 10000 }),
+      temps_travail: intOrNull(it?.temps_travail, { min: 0, max: 36000 }),
+      repos: intOrNull(it?.repos, { min: 0, max: 36000 }),
+      charge: str(it?.charge, { max: 60 }),
+      notes: str(it?.notes, { max: 1000 }),
+    })),
+    created_at: Number(s?.created_at) || Date.now(),
+    updated_at: Number(s?.updated_at) || Date.now(),
+  }));
+  clean.planned = obj.planned.map((p) => ({
+    id: Number(p?.id) || 0,
+    session_id: p?.session_id != null ? Number(p.session_id) : null,
+    titre_libre: str(p?.titre_libre, { max: 120 }),
+    date: str(p?.date, { max: 10, required: true }),
+    heure: p?.heure ?? null,
+    recurrence: oneOf(str(p?.recurrence, { max: 10 }), RECURRENCES, 'none'),
+    jours: Array.isArray(p?.jours) ? p.jours.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6) : [],
+    fin_recurrence: p?.fin_recurrence ?? null,
+    couleur: str(p?.couleur, { max: 20 }),
+    notes: str(p?.notes, { max: 2000 }),
+    rappel: typeof p?.rappel === 'object' && p.rappel !== null ? { actif: !!p.rappel.actif, minutes: intOrNull(p.rappel.minutes, { min: 0, max: 1440 }) ?? 15 } : { actif: false, minutes: 15 },
+    effectuee: !!p?.effectuee,
+    logs: (Array.isArray(p?.logs) ? p.logs : []).map((l) => ({
+      id: Number(l?.id) || 0,
+      planned_session_id: Number(p?.id) || 0,
+      session_exercise_id: l?.session_exercise_id != null ? Number(l.session_exercise_id) : null,
+      exercice: str(l?.exercice, { max: 120, required: true }),
+      series_realisees: intOrNull(l?.series_realisees, { min: 0, max: 1000 }),
+      repetitions_realisees: intOrNull(l?.repetitions_realisees, { min: 0, max: 10000 }),
+      charge_utilisee: str(l?.charge_utilisee, { max: 60 }),
+      sensation: oneOf(str(l?.sensation, { max: 30 }), ['facile', 'correct', 'difficile', 'très difficile', ''], ''),
+      commentaire: str(l?.commentaire, { max: 1000 }),
+    })),
+    created_at: str(p?.created_at, { max: 40 }) || new Date().toISOString(),
+    updated_at: str(p?.updated_at, { max: 40 }) || new Date().toISOString(),
+  }));
+  data = clean;
+  data.seq = computeSeq();
+  persist();
+  return { ok: true, counts: { exercises: data.exercises.length, sessions: data.sessions.length, planned: data.planned.length } };
 }

@@ -6,6 +6,8 @@ import { renderSessionRun } from './views/sessionRun.js';
 import { renderCalendar } from './views/calendar.js';
 import { renderHistory } from './views/history.js';
 import { renderProfile } from './views/profile.js';
+import { renderShared } from './views/shareView.js';
+import { startNotificationScheduler } from './notifications.js';
 
 export const state = { user: null };
 
@@ -29,6 +31,7 @@ const routes = [
   [/^#\/calendrier$/, () => renderCalendar()],
   [/^#\/historique$/, () => renderHistory()],
   [/^#\/profil$/, () => renderProfile()],
+  [/^#\/partage\/([A-Za-z0-9_-]+)$/, (m) => renderShared(m[1])],
 ];
 
 function renderHeader() {
@@ -68,6 +71,12 @@ async function route() {
 async function boot() {
   const { user } = await get('/api/auth/me');
   state.user = user;
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+  startNotificationScheduler();
   if (!location.hash) location.hash = '#/calendrier';
   await route();
 }

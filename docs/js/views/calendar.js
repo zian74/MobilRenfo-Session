@@ -165,6 +165,16 @@ export async function renderCalendar() {
     };
   }
 
+  function rappelFields(initial) {
+    const init = initial || { actif: false, minutes: 15 };
+    const cb = input('checkbox', { checked: !!init.actif });
+    const mins = input('number', { min: 0, max: 1440, value: init.minutes ?? 15, style: 'width:90px' });
+    const box = h('div', { class: 'field-row' },
+      h('label', { class: 'checkbox-field', style: 'margin:0' }, cb, '🔔 Rappel avant la séance'),
+      field('Minutes avant', mins));
+    return { box, get: () => ({ actif: cb.checked, minutes: mins.value === '' ? 15 : Number(mins.value) }) };
+  }
+
   async function openPlanModal(dateIso) {
     let sessions = [];
     try { sessions = (await get('/api/sessions')).sessions; } catch { /* ignore */ }
@@ -172,6 +182,7 @@ export async function renderCalendar() {
     const titre = input('text', { maxlength: 120, placeholder: 'ex. Étirements du soir' });
     const heure = input('time', {});
     const recF = recurrenceFields();
+    const rapF = rappelFields();
     const notes = textarea({ rows: 2, placeholder: 'Notes (optionnel)' });
     const err = h('div', {});
     const content = h('form', {}, err,
@@ -180,6 +191,7 @@ export async function renderCalendar() {
       field('Titre (si séance libre)', titre),
       h('div', { class: 'field-row' }, field('Heure (optionnel)', heure), field('Récurrence', recF.rec)),
       recF.customBox,
+      rapF.box,
       field('Notes', notes),
       h('div', { class: 'form-actions' },
         h('button', { type: 'submit', class: 'btn primary' }, 'Planifier'),
@@ -200,6 +212,7 @@ export async function renderCalendar() {
           date: dateIso,
           heure: heure.value || null,
           ...recF.get(),
+          rappel: rapF.get(),
           notes: notes.value.trim(),
         });
         toast('Séance planifiée', 'success');
@@ -216,6 +229,7 @@ export async function renderCalendar() {
     }
     const heure = input('time', { value: p.heure ?? '' });
     const recF = recurrenceFields(p.recurrence, p.jours ?? [], p.fin_recurrence ?? '');
+    const rapF = rappelFields(p.rappel);
     const notes = textarea({ rows: 2 });
     notes.value = p.notes ?? '';
     const date = input('date', { value: p.date });
@@ -228,13 +242,14 @@ export async function renderCalendar() {
       h('div', { class: 'field-row' },
         field('Jour', date), field('Heure', heure), field('Récurrence', recF.rec)),
       recF.customBox,
+      rapF.box,
       field('Notes', notes));
 
     const btnRow = h('div', { class: 'form-actions' });
     const saveBtn = h('button', { class: 'btn primary', onclick: async () => {
       clear(err);
       try {
-        await put(`/api/planned/${p.id}`, { date: date.value, heure: heure.value || null, ...recF.get(), notes: notes.value.trim() });
+        await put(`/api/planned/${p.id}`, { date: date.value, heure: heure.value || null, ...recF.get(), rappel: rapF.get(), notes: notes.value.trim() });
         toast('Planification mise à jour', 'success');
         m.close();
         load();

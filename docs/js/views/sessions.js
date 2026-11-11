@@ -276,7 +276,7 @@ export async function renderSessionForm(id) {
   nom.focus();
 }
 
-export function buildReadSheet(session, { extraActions = null } = {}) {
+export function buildReadSheet(session, { extraActions = null, readOnly = false } = {}) {
   const sheet = h('div', { class: 'read-sheet card' });
   const checked = new Set();
   sheet.append(
@@ -287,7 +287,7 @@ export function buildReadSheet(session, { extraActions = null } = {}) {
       badge(formatDuree(session.duree_estimee)),
       session.description ? h('p', { class: 'muted', style: 'margin:8px 0 0' }, session.description) : null),
     h('div', { class: 'read-actions' },
-      h('a', { class: 'btn', href: `#/sessions/${session.id}` }, '← Modifier'),
+      readOnly ? null : h('a', { class: 'btn', href: `#/sessions/${session.id}` }, '← Modifier'),
       extraActions,
       h('button', { class: 'btn', onclick: () => window.print() }, '🖨 Imprimer'),
       h('button', { class: 'btn', onclick: () => {
@@ -333,5 +333,18 @@ export async function renderSessionRead(id) {
     return;
   }
   clear(main);
-  main.append(buildReadSheet(session));
+  const shareBtn = h('button', {
+    class: 'btn',
+    onclick: async () => {
+      const { shareUrlForSession } = await import('../share.js');
+      const url = shareUrlForSession(session);
+      try {
+        await navigator.clipboard.writeText(url);
+        toast('🔗 Lien de partage copié dans le presse-papiers', 'success');
+      } catch {
+        window.prompt('Copiez ce lien de partage :', url);
+      }
+    },
+  }, '🔗 Copier le lien de partage (lecture seule)');
+  main.append(buildReadSheet(session, { extraActions: shareBtn }));
 }
