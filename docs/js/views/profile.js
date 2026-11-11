@@ -1,6 +1,7 @@
-import { get, put, del, exportData } from '../api.js';
+import { get, put, del, exportData, importData } from '../api.js';
 import { h, clear, field, input, toast, confirmDialog, errorBox, loading } from '../ui.js';
 import { state } from '../main.js';
+import { requestNotificationPermission } from '../notifications.js';
 
 const NIVEAUX = ['débutant', 'intermédiaire', 'avancé'];
 const OBJECTIFS = ['perte de poids', 'prise de masse', 'mobilité', 'performance'];
@@ -57,7 +58,26 @@ export async function renderProfile() {
   const actions = h('div', { class: 'card mt' });
   actions.append(h('h2', { style: 'font-size:1.05rem;margin-top:0' }, 'Mes données (100 % locales)'));
   const row = h('div', { class: 'form-actions' });
+  const importInput = input('file', { accept: 'application/json,.json', style: 'display:none' });
+  importInput.addEventListener('change', async () => {
+    const f = importInput.files?.[0];
+    if (!f) return;
+    try {
+      const obj = JSON.parse(await f.text());
+      const res = importData(obj);
+      toast(`Import réussi : ${res.counts.exercises} exercices, ${res.counts.sessions} sessions, ${res.counts.planned} planifications`, 'success');
+      setTimeout(() => location.reload(), 800);
+    } catch (e) {
+      toast(e.message || 'Fichier invalide', 'error');
+    }
+    importInput.value = '';
+  });
   row.append(
+    h('button', { class: 'btn', onclick: () => importInput.click() }, '⬆ Importer des données (JSON)'),
+    h('button', { class: 'btn', onclick: async () => {
+      const perm = await requestNotificationPermission();
+      toast(perm === 'granted' ? '🔔 Notifications activées (rappels de séances)' : perm === 'unsupported' ? 'Notifications non supportées par ce navigateur' : 'Notifications refusées', perm === 'granted' ? 'success' : '');
+    } }, '🔔 Activer les rappels de séance'),
     h('button', { class: 'btn', onclick: async () => {
       try {
         const data = await exportData();
@@ -79,6 +99,6 @@ export async function renderProfile() {
         } catch (e) { toast(e.message, 'error'); }
       }
     } }, '🗑 Effacer toutes mes données'));
-  actions.append(row);
+  actions.append(row, importInput);
   main.append(actions);
 }

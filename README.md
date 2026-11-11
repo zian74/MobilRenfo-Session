@@ -48,8 +48,11 @@ Activation (1 fois, côté dépôt) : **Settings → Pages → Build and deploym
 - **Aucun compte, aucun serveur** : l'app s'ouvre directement (pas de connexion/inscription).
 - **Données 100 % locales** : `localStorage` pour les données JSON, IndexedDB pour les médias (images/vidéos des exercices) — rien ne quitte votre navigateur.
 - Toutes les fonctionnalités sont conservées : bibliothèque d'exercices (recherche/filtres/médias), fiches de session (glisser-déposer), calendrier semaine/mois (récurrences personnalisées + fin), mode « séance du jour » avec bilan, historique et statistiques avancées.
-- Profil : export JSON des données et effacement complet depuis la page Profil.
-- L'API locale (`docs/js/api.js`) reprend la même surface que l'API serveur et est testée sous Node (`test/static.test.js`, stockage mémoire de repli).
+- Profil : export JSON des données, **import JSON**, et effacement complet depuis la page Profil.
+- **PWA hors ligne** : `manifest.webmanifest` + icônes + `sw.js` (cache du shell applicatif, navigation offline) — installable et consultable hors ligne, les données étant déjà locales.
+- **Rappels de séance** : champ « 🔔 Rappel » (minutes avant) sur chaque planification + scheduler de notifications (`js/notifications.js`), activation via le profil.
+- **Partage de fiche par lien en lecture seule** : bouton « 🔗 Copier le lien de partage » en mode lecture → URL `#/partage/<base64url>` décodée côté client, sans serveur.
+- L'API locale (`docs/js/api.js`) reprend la même surface que l'API serveur et est testée sous Node (`test/static.test.js`, `test/static-v2.test.js`, stockage mémoire de repli).
 
 La version serveur (`server/` + `public/`) reste disponible pour un usage avec comptes, via `npm start`.
 
