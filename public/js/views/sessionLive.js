@@ -101,6 +101,7 @@ export async function renderExerciseLive(exerciseId) {
   }
   clear(main);
   const reps = ex.repetitions_defaut || 0;
+  const delai = Number.isInteger(ex.delai_debut_defaut) && ex.delai_debut_defaut >= 0 ? ex.delai_debut_defaut : COUNTDOWN_AVANT;
   const steps = [{
     title: ex.nom,
     series: ex.series_defaut > 0 ? ex.series_defaut : 1,
@@ -111,7 +112,7 @@ export async function renderExerciseLive(exerciseId) {
     charge: ex.charge_conseille || '',
     notes: '',
   }];
-  renderLiveRun({ title: ex.nom, steps, countdownAvant: COUNTDOWN_AVANT, backHash: `#/exercices/${exerciseId}`, retourAuCalme: '' });
+  renderLiveRun({ title: ex.nom, steps, countdownAvant: delai, backHash: `#/exercices/${exerciseId}`, retourAuCalme: '' });
 }
 
 function renderLiveRun({ title, steps, countdownAvant, backHash, retourAuCalme = '' }) {

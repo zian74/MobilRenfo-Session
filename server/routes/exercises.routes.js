@@ -31,6 +31,7 @@ function readExerciseBody(body) {
     repetitions_defaut: intOrNull(body?.repetitions_defaut, { min: 0, max: 10000 }),
     temps_travail_defaut: intOrNull(body?.temps_travail_defaut, { min: 0, max: 36000 }),
     repos_defaut: intOrNull(body?.repos_defaut, { min: 0, max: 36000 }),
+    delai_debut_defaut: intOrNull(body?.delai_debut_defaut, { min: 0, max: 3600 }),
     charge_conseille: str(body?.charge_conseille, { max: 60 }),
     tags: strArray(body?.tags, { maxItems: 20, maxLen: 40 }),
     favori: body?.favori ? 1 : 0,
@@ -111,12 +112,12 @@ router.post('/', (req, res) => {
     const db = getDb();
     const info = db.prepare(
       `INSERT INTO exercises (user_id, nom, categorie, groupe_musculaire, niveau, equipement, description, media_url,
-        series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, charge_conseille, tags, favori)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, delai_debut_defaut, charge_conseille, tags, favori)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       req.user.id, data.nom, data.categorie, data.groupe_musculaire, data.niveau,
       JSON.stringify(data.equipement), data.description, data.media_url,
-      data.series_defaut, data.repetitions_defaut, data.temps_travail_defaut, data.repos_defaut,
+      data.series_defaut, data.repetitions_defaut, data.temps_travail_defaut, data.repos_defaut, data.delai_debut_defaut,
       data.charge_conseille, JSON.stringify(data.tags), data.favori
     );
     const row = db.prepare('SELECT * FROM exercises WHERE id = ?').get(info.lastInsertRowid);
@@ -135,11 +136,11 @@ router.put('/:id', (req, res) => {
     getDb().prepare(
       `UPDATE exercises SET nom = ?, categorie = ?, groupe_musculaire = ?, niveau = ?, equipement = ?, description = ?,
         media_url = ?, series_defaut = ?, repetitions_defaut = ?, temps_travail_defaut = ?, repos_defaut = ?,
-        charge_conseille = ?, tags = ?, favori = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
+        delai_debut_defaut = ?, charge_conseille = ?, tags = ?, favori = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
     ).run(
       data.nom, data.categorie, data.groupe_musculaire, data.niveau,
       JSON.stringify(data.equipement), data.description, data.media_url,
-      data.series_defaut, data.repetitions_defaut, data.temps_travail_defaut, data.repos_defaut,
+      data.series_defaut, data.repetitions_defaut, data.temps_travail_defaut, data.repos_defaut, data.delai_debut_defaut,
       data.charge_conseille, JSON.stringify(data.tags), data.favori, id, req.user.id
     );
     const row = getDb().prepare('SELECT * FROM exercises WHERE id = ?').get(id);
@@ -157,9 +158,9 @@ router.post('/:id/duplicate', (req, res) => {
   const db = getDb();
   const info = db.prepare(
     `INSERT INTO exercises (user_id, nom, categorie, groupe_musculaire, niveau, equipement, description, media_url,
-      series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, charge_conseille, tags, favori)
+      series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, delai_debut_defaut, charge_conseille, tags, favori)
      SELECT user_id, nom || ' (copie)', categorie, groupe_musculaire, niveau, equipement, description, media_url,
-      series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, charge_conseille, tags, 0
+      series_defaut, repetitions_defaut, temps_travail_defaut, repos_defaut, delai_debut_defaut, charge_conseille, tags, 0
      FROM exercises WHERE id = ? AND user_id = ?`
   ).run(id, req.user.id);
   const copy = db.prepare('SELECT * FROM exercises WHERE id = ?').get(info.lastInsertRowid);

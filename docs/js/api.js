@@ -108,6 +108,7 @@ function parseExerciseInput(body) {
     repetitions_defaut: intOrNull(body?.repetitions_defaut, { min: 0, max: 10000 }),
     temps_travail_defaut: intOrNull(body?.temps_travail_defaut, { min: 0, max: 36000 }),
     repos_defaut: intOrNull(body?.repos_defaut, { min: 0, max: 36000 }),
+    delai_debut_defaut: intOrNull(body?.delai_debut_defaut, { min: 0, max: 3600 }),
     charge_conseille: str(body?.charge_conseille, { max: 60 }),
     tags: strArray(body?.tags, { maxItems: 20, maxLen: 40 }),
     favori: body?.favori ? true : false,

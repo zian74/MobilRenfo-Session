@@ -188,6 +188,7 @@ export async function renderExerciseForm(id) {
   const reps = input('number', { min: 0, max: 10000, value: ex?.repetitions_defaut ?? '' });
   const temps = input('number', { min: 0, placeholder: 'secondes', value: ex?.temps_travail_defaut ?? '' });
   const repos = input('number', { min: 0, placeholder: 'secondes', value: ex?.repos_defaut ?? '' });
+  const delai = input('number', { min: 0, max: 3600, placeholder: '10', value: ex?.delai_debut_defaut ?? '' });
   const charge = input('text', { maxlength: 60, value: ex?.charge_conseille ?? '', placeholder: 'ex. 20 kg, élastique fort' });
   const tags = input('text', { value: (ex?.tags ?? []).join(', '), placeholder: 'Séparés par des virgules' });
   const favori = input('checkbox', {});
@@ -206,7 +207,8 @@ export async function renderExerciseForm(id) {
     h('h3', { class: 'mt' }, 'Paramètres par défaut'),
     h('div', { class: 'field-row' },
       field('Séries', series), field('Répétitions', reps), field('Temps de travail (s)', temps),
-      field('Repos (s)', repos), field('Charge conseillée', charge)),
+      field('Repos (s)', repos), field('Charge conseillée', charge),
+      field('Compte à rebours avant début (s)', delai, { hint: 'avant « Démarrer l’exercice » · vide = 10 s · 0 = désactivé' })),
     field('Tags', tags, { hint: 'Mots-clés séparés par des virgules, pour la recherche' }),
     h('label', { class: 'checkbox-field' }, favori, '⭐ Exercice favori'),
     datalist,
@@ -231,6 +233,7 @@ export async function renderExerciseForm(id) {
       repetitions_defaut: toInt(reps.value),
       temps_travail_defaut: toInt(temps.value),
       repos_defaut: toInt(repos.value),
+      delai_debut_defaut: toInt(delai.value),
       charge_conseille: charge.value.trim(),
       tags: parseList(tags.value),
       favori: favori.checked,

@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS exercises (
   repetitions_defaut INTEGER,
   temps_travail_defaut INTEGER,
   repos_defaut INTEGER,
+  delai_debut_defaut INTEGER,
   charge_conseille TEXT NOT NULL DEFAULT '',
   tags TEXT NOT NULL DEFAULT '[]',
   favori INTEGER NOT NULL DEFAULT 0,
@@ -164,6 +165,10 @@ function migrate() {
   }
   if (!cols.includes('fin_recurrence')) {
     db.exec('ALTER TABLE planned_sessions ADD COLUMN fin_recurrence TEXT');
+  }
+  const exCols = db.prepare('PRAGMA table_info(exercises)').all().map((c) => c.name);
+  if (!exCols.includes('delai_debut_defaut')) {
+    db.exec('ALTER TABLE exercises ADD COLUMN delai_debut_defaut INTEGER');
   }
   const mediaInfo = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'media'").get();
   if (!mediaInfo) {
