@@ -1,4 +1,4 @@
-import { get, post, put, del, uploadMedia } from '../api.js';
+import { get, post, put, del, uploadMedia, importData } from '../api.js';
 import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialog, badge, emptyState, loading, mediaPreview, mediaKey } from '../ui.js';
 
 const CATEGORIES = [['renforcement', 'Renforcement'], ['mobilité', 'Mobilité']];
@@ -19,9 +19,13 @@ function paramsLabel(ex) {
 export async function renderExercises() {
   const main = document.getElementById('app-main');
   clear(main);
+  const importInput = input('file', { accept: 'application/json,.json', style: 'display:none', 'aria-label': 'Importer des exercices (JSON)' });
   main.append(h('div', { class: 'page-title' },
     h('h1', {}, 'Bibliothèque d’exercices'),
-    h('div', { class: 'page-actions' }, h('a', { class: 'btn primary', href: '#/exercices/nouveau' }, '+ Nouvel exercice'))));
+    h('div', { class: 'page-actions' },
+      h('button', { class: 'btn', onclick: () => importInput.click() }, '⬆ Importer (JSON)'),
+      h('a', { class: 'btn primary', href: '#/exercices/nouveau' }, '+ Nouvel exercice'))));
+  main.append(importInput);
 
   const q = input('search', { placeholder: 'Rechercher (nom, tag, description)…', 'aria-label': 'Recherche plein texte' });
   const cat = select([['', 'Toutes catégories'], ...CATEGORIES]);
@@ -41,10 +45,18 @@ export async function renderExercises() {
   const list = h('div', { class: 'grid cols-3', id: 'ex-list' });
   main.append(list);
 
-  let facets = { groupes: [], equipements: [] };
-  try { facets = await get('/api/exercises/facets'); } catch { /* facettes optionnelles */ }
-  for (const g of facets.groupes) groupe.append(h('option', { value: g }, g));
-  for (const e of facets.equipements) equip.append(h('option', { value: e }, e));
+  async function refreshFacets() {
+    let facets = { groupes: [], equipements: [] };
+    try { facets = await get('/api/exercises/facets'); } catch { /* facettes optionnelles */ }
+    for (const [sel, placeholder, values] of [[groupe, 'Tous groupes', facets.groupes], [equip, 'Tout équipement', facets.equipements]]) {
+      const keep = sel.value;
+      clear(sel);
+      sel.append(h('option', { value: '' }, placeholder));
+      for (const v of values) sel.append(h('option', { value: v }, v));
+      if ([...sel.options].some((o) => o.value === keep)) sel.value = keep;
+    }
+  }
+  await refreshFacets();
 
   async function load() {
     clear(list).append(loading());
@@ -111,6 +123,23 @@ export async function renderExercises() {
       list.append(card);
     }
   }
+
+  importInput.addEventListener('change', async () => {
+    const f = importInput.files?.[0];
+    if (!f) return;
+    try {
+      let obj = JSON.parse(await f.text());
+      if (Array.isArray(obj)) obj = { exercises: obj, sessions: [], planned: [] };
+      else if (obj && typeof obj === 'object') obj = { sessions: [], planned: [], ...obj };
+      const res = importData(obj);
+      toast(`Import réussi : +${res.added.exercises} exercice(s), les fiches existantes sont conservées`, 'success');
+      await refreshFacets();
+      await load();
+    } catch (e) {
+      toast(e.message || 'Fichier invalide', 'error');
+    }
+    importInput.value = '';
+  });
 
   let debounce;
   q.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(load, 200); });
