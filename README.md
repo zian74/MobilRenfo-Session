@@ -1,2 +1,44 @@
 # MobilRenfo-Session
-Session de renforcement musculaire et de mobilité
+
+Webapp de création de fiches d'exercices, de fiches de session et de planification de séances de renforcement musculaire et de travail de la mobilité (MVP du cahier des charges).
+
+## Démarrage
+
+```bash
+npm install
+npm start          # http://127.0.0.1:3000
+npm test           # tests API automatisés (node:test)
+npm run dev        # rechargement auto (node --watch)
+```
+
+Variables d'environnement : `PORT` (défaut 3000), `HOST` (défaut 127.0.0.1), `DB_PATH` (défaut `data/app.db`).
+
+## Architecture
+
+- **Back** : Node.js + Express, base SQLite (`better-sqlite3`) — schéma conforme au modèle du CdC §4 (`users`, `exercises`, `sessions`, `session_exercises`, `planned_sessions`, `session_logs`). Auth par session en cookie httpOnly (glissement 30 jours), mots de passe hachés avec **scrypt** (`node:crypto`). Toutes les requêtes sont scopées par `user_id` (isolation stricte des données). Protection CSRF : cookie `SameSite=Lax` + contrôle de l'en-tête `Origin` + `Content-Type: application/json` exigé sur les mutations. Validation stricte de toutes les entrées.
+- **Front** : SPA en JavaScript vanilla (ES modules, sans build), routage par hash, servie par Express. Vues : connexion/inscription, bibliothèque d'exercices, fiches de session, calendrier, historique, profil.
+
+## Fonctionnalités MVP (CdC §9)
+
+- Compte email + mot de passe (scrypt), profil (nom, niveau, objectifs), export JSON des données et suppression de compte (RGPD).
+- CRUD exercices avec recherche plein texte (< 300 ms côté serveur), filtres (catégorie, groupe musculaire, équipement, niveau, favori), tri, duplication, favori.
+- Fiches de session : assemblage d'exercices depuis la bibliothèque (recherche), paramètres surchargeables par exercice, réordonnancement par glisser-déposer (et boutons ↑↓), blocs libres, échauffement / retour au calme, durée estimée auto, mode lecture plein écran / imprimable.
+- Calendrier semaine et mois : planification d'une session (ou séance libre) à une date/heure, récurrence (quotidienne / hebdomadaire), glisser-déplacer d'un jour à l'autre, code couleur par type, modification / suppression.
+- Marquage « effectuée » avec bilan par exercice (séries / répétitions / charge réalisées, sensation, commentaire).
+- Historique filtrable (période, type, groupe musculaire) et statistiques (séances par semaine, volume total séries × répétitions × charge, répartition renforcement/mobilité).
+- Responsive mobile / desktop, navigation clavier, labels ARIA, contraste AA.
+
+## Tests
+
+`npm test` couvre les parcours critiques : auth (register/login/logout/erreurs), 401 sans session, CRUD exercices + filtres + isolation entre utilisateurs, création/réordonnancement/duplication de sessions, planification + récurrence + déplacement + bilan, historique + stats, export/suppression RGPD, refus des mutations cross-origin — plus les apports V1.5 : récurrence personnalisée + fin, `GET /api/planned/:id` et isolement, upload/lecture/suppression de médias avec ACL, stats avancées (volume par semaine/groupe, progression, streak).
+
+## V1.5 (CdC §8)
+
+- **Récurrence avancée** : récurrence personnalisée par jours de la semaine (`custom` + `jours`) et date de fin de récurrence (`fin_recurrence`), en plus de « une fois / quotidienne / hebdomadaire ». Migration automatique des anciennes bases (reconstruction de `planned_sessions` si l'ancien CHECK est détecté).
+- **Médias sur les exercices** : upload de fichiers image/vidéo (png, jpg, gif, webp, mp4, webm, mov — 25 Mo max) stockés sur disque (`data/uploads/u<id>/…`, `UPLOAD_DIR` configurable), servis en privé via `/api/media/<key>` avec contrôle d propriétaire, aperçus dans la bibliothèque et le formulaire, suppression du média liée à la suppression de l'exercice ou du compte. L'URL externe reste possible.
+- **Mode « séance du jour »** : route `#/seance/:plannedId` — fiche en mode lecture (cases à cocher, plein écran, impression) avec bouton « Marquer effectuée + bilan » intégré (bilan par exercice : séries/répétitions/charge réalisées, sensation, commentaire).
+- **Statistiques avancées** : volume par semaine et par groupe musculaire (barres), progression des charges par exercice, série de semaines consécutives, séances par mois — en plus des stats MVP.
+
+## Hors périmètre (V2 du CdC)
+
+Partage de sessions par lien, PWA hors ligne, rappels/notifications, import de données, espace coach/athlète, stockage média S3 (le stockage local uploadé peut être remplacé par un bucket S3 compatible). Le schéma SQL est prêt à évoluer vers PostgreSQL + Prisma si besoin.
