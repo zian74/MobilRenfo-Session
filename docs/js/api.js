@@ -753,12 +753,6 @@ export function importData(obj) {
     throw new ApiError(400, 'Format d’export invalide (exercises/sessions/planned requis)');
   }
   const clean = emptyData();
-  clean.profile = {
-    name: str(obj.profile?.name, { max: 100 }),
-    niveau: oneOf(str(obj.profile?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
-    objectifs: strArray(obj.profile?.objectifs, { maxItems: 10, maxLen: 40 }),
-    createdAt: str(obj.profile?.createdAt, { max: 40 }) || new Date().toISOString(),
-  };
   clean.exercises = obj.exercises.map((e) => ({ ...parseExerciseInput(e), id: Number(e?.id) || 0, created_at: Number(e?.created_at) || Date.now(), updated_at: Number(e?.updated_at) || Date.now() }));
   clean.sessions = obj.sessions.map((s) => ({
     id: Number(s?.id) || 0,
@@ -812,8 +806,42 @@ export function importData(obj) {
     created_at: str(p?.created_at, { max: 40 }) || new Date().toISOString(),
     updated_at: str(p?.updated_at, { max: 40 }) || new Date().toISOString(),
   }));
-  data = clean;
+  const exMap = new Map();
+  for (const e of clean.exercises) {
+    const nid = nextId('exercise');
+    exMap.set(e.id, nid);
+    data.exercises.push({ ...e, id: nid });
+  }
+  const sessMap = new Map();
+  const itemMap = new Map();
+  for (const s of clean.sessions) {
+    const nsid = nextId('session');
+    sessMap.set(s.id, nsid);
+    s.id = nsid;
+    for (const it of s.items) {
+      const nid = nextId('item');
+      itemMap.set(it.id, nid);
+      it.id = nid;
+      it.session_id = nsid;
+      it.exercise_id = it.exercise_id != null && exMap.has(it.exercise_id) ? exMap.get(it.exercise_id) : null;
+    }
+    data.sessions.push(s);
+  }
+  for (const p of clean.planned) {
+    const npid = nextId('planned');
+    p.id = npid;
+    p.session_id = p.session_id != null && sessMap.has(p.session_id) ? sessMap.get(p.session_id) : null;
+    for (const l of p.logs) {
+      l.planned_session_id = npid;
+      l.session_exercise_id = l.session_exercise_id != null && itemMap.has(l.session_exercise_id) ? itemMap.get(l.session_exercise_id) : null;
+    }
+    data.planned.push(p);
+  }
   data.seq = computeSeq();
   persist();
-  return { ok: true, counts: { exercises: data.exercises.length, sessions: data.sessions.length, planned: data.planned.length } };
+  return {
+    ok: true,
+    counts: { exercises: data.exercises.length, sessions: data.sessions.length, planned: data.planned.length },
+    added: { exercises: clean.exercises.length, sessions: clean.sessions.length, planned: clean.planned.length },
+  };
 }
