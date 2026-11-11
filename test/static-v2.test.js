@@ -60,3 +60,15 @@ test('V2 static: rappel sur planification (création, édition, persistance)', a
 
   await assert.rejects(() => post('/api/planned', { titre_libre: 'X', date: '2025-06-02', rappel: { actif: true, minutes: 99999 } }), (e) => e.status === 400);
 });
+
+test('régression: les hrefs de navigation commencent par #/ (sinon retour au calendrier)', async () => {
+  const fs = await import('node:fs');
+  for (const p of ['docs/js/main.js', 'public/js/main.js']) {
+    const src = fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
+    const navBlock = src.match(/const NAV = \[([\s\S]*?)\];/)[1];
+    const hrefs = [...navBlock.matchAll(/\['(#[^']*)'/g)].map((m) => m[1]);
+    assert.ok(hrefs.length >= 5, `${p}: NAV trouvé`);
+    for (const href of hrefs) assert.ok(href.startsWith('#/'), `${p}: href invalide ${href}`);
+    assert.ok(src.includes('normalizeHash') || src.includes('startsWith(\'#/\')'), `${p}: normalisation du hash présente`);
+  }
+});
