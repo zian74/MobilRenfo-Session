@@ -131,7 +131,9 @@ export async function renderExerciseForm(id) {
 
   main.append(h('div', { class: 'page-title' },
     h('h1', {}, ex ? `Modifier « ${ex.nom} »` : 'Nouvel exercice'),
-    h('div', { class: 'page-actions' }, h('a', { class: 'btn', href: '#/exercices' }, '← Retour'))));
+    h('div', { class: 'page-actions' },
+      ex ? h('a', { class: 'btn primary', href: `#/exercices/${ex.id}/demarrer` }, '▶ Démarrer l’exercice') : null,
+      h('a', { class: 'btn', href: '#/exercices' }, '← Retour'))));
 
   const nom = input('text', { required: true, maxlength: 120, value: ex?.nom ?? '' });
   const categorie = select(CATEGORIES, { value: ex?.categorie ?? 'renforcement' });
