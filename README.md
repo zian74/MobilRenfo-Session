@@ -43,6 +43,8 @@ Variables d'environnement : `PORT` (défaut 3000), `HOST` (défaut 127.0.0.1), `
 
 Le dossier **`docs/`** contient une version **100 % statique et mono-utilisateur** de l'app, publiée via GitHub Pages : **https://zian74.github.io/MobilRenfo-Session/**
 
+Activation (1 fois, côté dépôt) : **Settings → Pages → Build and deployment → Source → « GitHub Actions »** (le workflow `.github/workflows/pages.yml` déploie `docs/` à chaque push sur `main`). Alternative : Source → « Deploy from a branch » → `main` → `/docs`.
+
 - **Aucun compte, aucun serveur** : l'app s'ouvre directement (pas de connexion/inscription).
 - **Données 100 % locales** : `localStorage` pour les données JSON, IndexedDB pour les médias (images/vidéos des exercices) — rien ne quitte votre navigateur.
 - Toutes les fonctionnalités sont conservées : bibliothèque d'exercices (recherche/filtres/médias), fiches de session (glisser-déposer), calendrier semaine/mois (récurrences personnalisées + fin), mode « séance du jour » avec bilan, historique et statistiques avancées.
