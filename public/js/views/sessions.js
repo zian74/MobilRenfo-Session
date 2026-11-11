@@ -318,7 +318,9 @@ export function buildReadSheet(session, { extraActions = null } = {}) {
       h('div', { class: 'ri-name' }, `${i + 1}. ${itemTitle(it)}`),
       h('div', { class: 'ri-params' }, itemParamsText(it) || '—'),
       it.notes ? h('div', { class: 'ri-params' }, `Note : ${it.notes}`) : null,
-      it.exercise_id ? h('a', { class: 'small', href: `#/exercices/${it.exercise_id}` }, 'Voir la fiche exercice') : null));
+      it.exercise_id && (it.exercise_groupe || it.exercise_niveau)
+        ? h('div', { class: 'ri-params' }, [it.exercise_groupe, it.exercise_niveau].filter(Boolean).join(' · '))
+        : null));
     sheet.append(row);
   });
   if (session.retour_au_calme) {
