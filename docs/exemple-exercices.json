@@ -1,0 +1,52 @@
+{
+  "exportedAt": "2026-11-11T17:00:00.000Z",
+  "profile": {
+    "name": "",
+    "niveau": "débutant",
+    "objectifs": ["prise de masse"],
+    "createdAt": "2026-11-11T17:00:00.000Z"
+  },
+  "exercises": [
+    {
+      "id": 1,
+      "nom": "Squat",
+      "categorie": "renforcement",
+      "groupe_musculaire": "quadriceps",
+      "niveau": "débutant",
+      "equipement": ["poids du corps"],
+      "description": "Debout, pieds largeur de hanches, pointes de pieds légèrement vers l'extérieur. Fléchis les genoux et descends les hanches en arrière comme pour t'asseoir, dos droit, poitrine ouverte. Remonte en poussant dans les talons. Variante : squat avec barre sur les épaules.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": ["jambes", "base", "quadriceps"],
+      "favori": true,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 2,
+      "nom": "Développé couché",
+      "categorie": "renforcement",
+      "groupe_musculaire": "pectoraux",
+      "niveau": "intermédiaire",
+      "equipement": ["barre", "banc", "haltères"],
+      "description": "Allongé sur un banc, pieds au sol, omoplates serrées. Saisis la barre mains un peu plus larges que les épaules. Descends la barre lentement jusqu'au milieu de la poitrine, coudes à ~45°, puis pousse en remontant bras tendus sans verrouiller les coudes.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "20 kg",
+      "tags": ["push", "pectoraux", "haut du corps"],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    }
+  ],
+  "sessions": [],
+  "planned": [],
+  "seq": { "exercise": 3, "session": 1, "item": 1, "planned": 1, "log": 1 }
+}
