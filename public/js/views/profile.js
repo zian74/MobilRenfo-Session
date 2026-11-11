@@ -66,6 +66,16 @@ export async function renderProfile() {
       toast('Déconnecté', 'success');
       location.hash = '#/connexion';
     } }, 'Se déconnecter'),
+    h('button', { class: 'btn', onclick: async () => {
+      if (await confirmDialog('Révoquer toutes les sessions actives (tous les appareils seront déconnectés) ?')) {
+        try {
+          await del('/api/auth/sessions');
+          state.user = null;
+          toast('Toutes les sessions ont été révoquées', 'success');
+          location.hash = '#/connexion';
+        } catch (e) { toast(e.message, 'error'); }
+      }
+    } }, '🔒 Déconnecter toutes les sessions'),
     h('button', { class: 'btn danger', onclick: async () => {
       if (await confirmDialog('Supprimer définitivement votre compte et toutes vos données (exercices, sessions, planning, historique) ? Cette action est irréversible.', { confirmLabel: 'Supprimer mon compte' })) {
         try {

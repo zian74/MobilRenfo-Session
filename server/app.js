@@ -3,7 +3,35 @@ import cookieParser from 'cookie-parser';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { requireMutationSafety } from './auth.js';
+import { requireMutationSafety, currentUser } from './auth.js';
+import { apiLimiter } from './ratelimit.js';
+
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "media-src 'self'",
+  "connect-src 'self'",
+  "font-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+].join('; ');
+
+function securityHeaders(req, res, next) {
+  res.setHeader('Content-Security-Policy', CSP);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (req.secure || process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  next();
+}
 import authRoutes from './routes/auth.routes.js';
 import exerciseRoutes from './routes/exercises.routes.js';
 import sessionRoutes from './routes/sessions.routes.js';
@@ -20,7 +48,13 @@ export function createApp() {
   app.use(express.raw({ type: ['image/*', 'video/*'], limit: '25mb' }));
   app.use(express.json({ limit: '256kb' }));
   app.use(cookieParser());
+  app.use(securityHeaders);
   app.use(requireMutationSafety);
+  app.use('/api', (req, _res, next) => {
+    req.user = req.user || currentUser(req) || undefined;
+    next();
+  });
+  app.use('/api', apiLimiter);
 
   app.use('/api/auth', authRoutes);
   app.use('/api/exercises', exerciseRoutes);
