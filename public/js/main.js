@@ -11,11 +11,11 @@ import { renderProfile } from './views/profile.js';
 export const state = { user: null, booting: true };
 
 const NAV = [
-  ['#calendrier', 'Calendrier'],
-  ['#exercices', 'Exercices'],
-  ['#sessions', 'Sessions'],
-  ['#historique', 'Historique'],
-  ['#profil', 'Profil'],
+  ['#/calendrier', 'Calendrier'],
+  ['#/exercices', 'Exercices'],
+  ['#/sessions', 'Sessions'],
+  ['#/historique', 'Historique'],
+  ['#/profil', 'Profil'],
 ];
 
 const PUBLIC_ROUTES = new Set(['#/connexion', '#/inscription']);
@@ -54,7 +54,7 @@ function renderHeader() {
 
 async function route() {
   const main = document.getElementById('app-main');
-  const hash = location.hash || '#/calendrier';
+  const hash = !location.hash || location.hash === '#' ? '#/calendrier' : (location.hash.startsWith('#/') ? location.hash : `#/${location.hash.slice(1)}`);
   renderHeader();
   if (!state.user && !PUBLIC_ROUTES.has(hash)) {
     location.hash = '#/connexion';
