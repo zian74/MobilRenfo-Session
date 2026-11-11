@@ -2,6 +2,7 @@ import { get } from '../api.js';
 import { h, clear, loading, emptyState } from '../ui.js';
 
 const COUNTDOWN_AVANT = 10;
+const TEMPS_PAR_REP = 3;
 
 let activeRun = null;
 
@@ -72,7 +73,7 @@ export async function renderSessionLive(sessionId) {
     title: it.exercise_nom || it.nom_libre || 'Bloc libre',
     series: it.series > 0 ? it.series : 1,
     reps: it.repetitions || 0,
-    work: it.temps_travail || 0,
+    work: it.temps_travail > 0 ? it.temps_travail : (it.repetitions > 0 ? it.repetitions * TEMPS_PAR_REP : 0),
     rest: it.repos || 0,
     charge: it.charge || '',
     notes: it.notes || '',
@@ -88,6 +89,8 @@ export async function renderSessionLive(sessionId) {
     phase: 'intro',
     ei: 0,
     si: 1,
+    rep: 1,
+    repMs: 0,
     endAt: 0,
     remainingMs: 0,
     paused: false,
@@ -177,9 +180,10 @@ export async function renderSessionLive(sessionId) {
       const it = steps[run.ei];
       phaseEl.textContent = { intro: 'Prépare-toi…', work: 'Travail', rest: 'Repos' }[run.phase];
       exEl.textContent = `${run.ei + 1}. ${it.title}`;
+      const perRep = it.reps > 0 && it.work > 0;
       const parts = [`Série ${run.si}/${it.series}`];
-      if (it.reps) parts.push(`${it.reps} répétitions`);
-      if (it.work) parts.push(`${it.work} s de travail`);
+      if (it.reps) parts.push(run.phase === 'work' && perRep ? `Répétition ${Math.min(run.rep, it.reps)}/${it.reps}` : `${it.reps} répétitions`);
+      if (it.work) parts.push(perRep ? `${Math.round((it.work / it.reps) * 10) / 10} s/rép` : `${it.work} s de travail`);
       if (it.rest) parts.push(`repos ${it.rest} s`);
       if (it.charge) parts.push(it.charge);
       metaEl.textContent = parts.join(' · ');
@@ -206,10 +210,12 @@ export async function renderSessionLive(sessionId) {
 
   function startWork() {
     const it = steps[run.ei];
+    run.rep = 1;
     if (it.work > 0) {
       soundWork(run.audio);
       vibrate(60);
-      startCountdown(it.work, 'work');
+      run.repMs = it.reps > 0 ? (it.work * 1000) / it.reps : 0;
+      startCountdown(it.reps > 0 ? run.repMs / 1000 : it.work, 'work');
     } else {
       run.phase = 'work';
       run.paused = false;
@@ -279,8 +285,17 @@ export async function renderSessionLive(sessionId) {
     paintProgress();
     if (rem <= 0) {
       if (run.phase === 'intro') startWork();
-      else if (run.phase === 'work') endOfWork();
-      else if (run.phase === 'rest') endOfRest();
+      else if (run.phase === 'work') {
+        const it = steps[run.ei];
+        if (it.reps > 0 && it.work > 0 && run.rep < it.reps) {
+          run.rep += 1;
+          run.endAt += run.repMs;
+          run.remainingMs = run.repMs;
+          run.audio?.beep(760, 0.07);
+          vibrate(30);
+          paint();
+        } else endOfWork();
+      } else if (run.phase === 'rest') endOfRest();
     }
   }
 
