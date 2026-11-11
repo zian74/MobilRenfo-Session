@@ -12,11 +12,11 @@ import { startNotificationScheduler } from './notifications.js';
 export const state = { user: null };
 
 const NAV = [
-  ['#calendrier', 'Calendrier'],
-  ['#exercices', 'Exercices'],
-  ['#sessions', 'Sessions'],
-  ['#historique', 'Historique'],
-  ['#profil', 'Profil'],
+  ['#/calendrier', 'Calendrier'],
+  ['#/exercices', 'Exercices'],
+  ['#/sessions', 'Sessions'],
+  ['#/historique', 'Historique'],
+  ['#/profil', 'Profil'],
 ];
 
 const routes = [
@@ -49,8 +49,13 @@ function renderHeader() {
   header.append(inner);
 }
 
+function normalizeHash(hash) {
+  if (!hash || hash === '#') return '#/calendrier';
+  return hash.startsWith('#/') ? hash : `#/${hash.slice(1)}`;
+}
+
 function currentRoute() {
-  if (location.hash && location.hash.length > 1) return location.hash;
+  if (location.hash && location.hash.length > 1) return normalizeHash(location.hash);
   const m = location.pathname.match(/^\/[^/]+\/(.*)$/);
   const rest = m ? m[1].replace(/\/+$/, '') : '';
   return rest ? `#/${rest}` : '#/calendrier';
