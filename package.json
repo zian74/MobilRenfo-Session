@@ -1,6 +1,6 @@
 {
   "name": "mobilrenfo-session",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "Webapp de création de fiches d'exercices, fiches de session et planification de séances de renforcement musculaire et de mobilité (MVP).",
   "main": "server/index.js",
   "type": "module",
