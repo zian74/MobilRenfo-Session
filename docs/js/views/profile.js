@@ -65,7 +65,7 @@ export async function renderProfile() {
     try {
       const obj = JSON.parse(await f.text());
       const res = importData(obj);
-      toast(`Import réussi : ${res.counts.exercises} exercices, ${res.counts.sessions} sessions, ${res.counts.planned} planifications`, 'success');
+      toast(`Import réussi : +${res.added.exercises} exercices, +${res.added.sessions} sessions, +${res.added.planned} planifications (données existantes conservées)`, 'success');
       setTimeout(() => location.reload(), 800);
     } catch (e) {
       toast(e.message || 'Fichier invalide', 'error');

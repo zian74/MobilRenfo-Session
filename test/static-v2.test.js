@@ -91,3 +91,72 @@ test('exemple: docs/exemple-exercices.json est importable (2 exercices de renfor
   assert.deepEqual(dc.equipement, ['barre', 'banc', 'haltères']);
   resetLocalData();
 });
+
+test('V2 static: import = fusion, les fiches existantes ne sont pas écrasées', async () => {
+  const fs = await import('node:fs');
+  resetLocalData();
+  const a = await post('/api/exercises', { nom: 'Squat perso', categorie: 'renforcement', groupe_musculaire: 'quadriceps', favori: true, series_defaut: 5, repetitions_defaut: 5 });
+  const s = await post('/api/sessions', { nom: 'Jambes perso', type: 'renforcement', items: [{ exercise_id: a.exercise.id, series: 3, repetitions: 8 }] });
+  await post('/api/planned', { session_id: s.session.id, date: '2025-07-01', heure: '07:00', recurrence: 'none' });
+
+  const ex = JSON.parse(fs.readFileSync(new URL('../docs/exemple-exercices.json', import.meta.url), 'utf8'));
+  const res = importData(ex);
+  assert.equal(res.added.exercises, 2);
+  assert.equal(res.counts.exercises, 3);
+  assert.equal(res.counts.sessions, 1);
+  assert.equal(res.counts.planned, 1);
+
+  let list = await get('/api/exercises');
+  const perso = list.exercises.find((e) => e.nom === 'Squat perso');
+  assert.ok(perso);
+  assert.equal(perso.id, a.exercise.id);
+  assert.equal(perso.favori, true);
+  assert.equal(perso.series_defaut, 5);
+  assert.ok(list.exercises.some((e) => e.nom === 'Squat'));
+  assert.equal(new Set(list.exercises.map((e) => e.id)).size, 3);
+
+  const trail = JSON.parse(fs.readFileSync(new URL('../docs/exercices-trail.json', import.meta.url), 'utf8'));
+  const res2 = importData(trail);
+  assert.equal(res2.added.exercises, 10);
+  assert.equal(res2.counts.exercises, 13);
+  list = await get('/api/exercises?activite=trail');
+  assert.equal(list.exercises.length, 10);
+  const perso2 = (await get('/api/exercises')).exercises.find((e) => e.nom === 'Squat perso');
+  assert.equal(perso2.id, a.exercise.id);
+  assert.equal(perso2.favori, true);
+
+  importData(ex);
+  list = await get('/api/exercises');
+  assert.equal(list.exercises.length, 15);
+  assert.equal(new Set(list.exercises.map((e) => e.id)).size, 15);
+  const detail = await get(`/api/sessions/${s.session.id}`);
+  assert.equal(detail.session.nom, 'Jambes perso');
+  assert.equal(detail.session.items[0].exercise_id, a.exercise.id);
+  resetLocalData();
+});
+
+test('V2 static: import fusionne sessions/planned avec re-liaison vers les nouveaux ids', async () => {
+  resetLocalData();
+  const a = await post('/api/exercises', { nom: 'Existant', categorie: 'renforcement' });
+  const payload = {
+    exercises: [{ id: 7, nom: 'Fente importée', categorie: 'renforcement', activite: 'trail', groupe_musculaire: 'quadriceps', equipement: ['poids du corps'], series_defaut: 3, repetitions_defaut: 10 }],
+    sessions: [{ id: 4, nom: 'Séance importée', type: 'renforcement', items: [{ id: 9, exercise_id: 7, nom_libre: '', series: 3, repetitions: 10 }] }],
+    planned: [{ id: 2, session_id: 4, titre_libre: '', date: '2025-08-05', heure: '06:30', recurrence: 'none', logs: [{ id: 3, session_exercise_id: 9, exercice: 'Fente importée', series_realisees: 3, repetitions_realisees: 10, sensation: 'correct' }] }],
+  };
+  const res = importData(payload);
+  assert.deepEqual(res.added, { exercises: 1, sessions: 1, planned: 1 });
+  const exs = (await get('/api/exercises')).exercises;
+  assert.equal(exs.length, 2);
+  const importe = exs.find((e) => e.nom === 'Fente importée');
+  assert.ok(importe.id !== 7 && importe.id !== a.exercise.id);
+  const sess = await get('/api/sessions');
+  assert.equal(sess.sessions.length, 1);
+  const detail = await get(`/api/sessions/${sess.sessions[0].id}`);
+  assert.equal(detail.session.items[0].exercise_id, importe.id);
+  assert.equal(detail.session.items[0].exercise_nom, 'Fente importée');
+  const planned = (await get('/api/planned?from=2025-08-01&to=2025-08-31')).planned;
+  assert.equal(planned.length, 1);
+  assert.equal(planned[0].session_id, sess.sessions[0].id);
+  assert.equal(planned[0].logs[0].session_exercise_id, detail.session.items[0].id);
+  resetLocalData();
+});
