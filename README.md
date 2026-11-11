@@ -39,6 +39,18 @@ Variables d'environnement : `PORT` (défaut 3000), `HOST` (défaut 127.0.0.1), `
 - **Mode « séance du jour »** : route `#/seance/:plannedId` — fiche en mode lecture (cases à cocher, plein écran, impression) avec bouton « Marquer effectuée + bilan » intégré (bilan par exercice : séries/répétitions/charge réalisées, sensation, commentaire).
 - **Statistiques avancées** : volume par semaine et par groupe musculaire (barres), progression des charges par exercice, série de semaines consécutives, séances par mois — en plus des stats MVP.
 
+## Version statique mono-utilisateur (GitHub Pages)
+
+Le dossier **`docs/`** contient une version **100 % statique et mono-utilisateur** de l'app, publiée via GitHub Pages : **https://zian74.github.io/MobilRenfo-Session/**
+
+- **Aucun compte, aucun serveur** : l'app s'ouvre directement (pas de connexion/inscription).
+- **Données 100 % locales** : `localStorage` pour les données JSON, IndexedDB pour les médias (images/vidéos des exercices) — rien ne quitte votre navigateur.
+- Toutes les fonctionnalités sont conservées : bibliothèque d'exercices (recherche/filtres/médias), fiches de session (glisser-déposer), calendrier semaine/mois (récurrences personnalisées + fin), mode « séance du jour » avec bilan, historique et statistiques avancées.
+- Profil : export JSON des données et effacement complet depuis la page Profil.
+- L'API locale (`docs/js/api.js`) reprend la même surface que l'API serveur et est testée sous Node (`test/static.test.js`, stockage mémoire de repli).
+
+La version serveur (`server/` + `public/`) reste disponible pour un usage avec comptes, via `npm start`.
+
 ## Durcissement sécurité (avant prod)
 
 - **En-têtes HTTP** sur toutes les réponses : CSP stricte (`default-src 'self'`, `script-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`…), `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Cross-Origin-Opener-Policy`, `Permissions-Policy` (caméra/micro/GPS désactivés), et **HSTS** activé automatiquement en production/HTTPS.
