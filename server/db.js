@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS exercises (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   nom TEXT NOT NULL,
   categorie TEXT NOT NULL CHECK (categorie IN ('renforcement','mobilité')),
+  activite TEXT NOT NULL DEFAULT 'générale' CHECK (activite IN ('générale','course à pied','trail','golf')),
   groupe_musculaire TEXT NOT NULL DEFAULT '',
   niveau TEXT NOT NULL DEFAULT 'débutant' CHECK (niveau IN ('débutant','intermédiaire','avancé')),
   equipement TEXT NOT NULL DEFAULT '[]',
@@ -169,6 +170,9 @@ function migrate() {
   const exCols = db.prepare('PRAGMA table_info(exercises)').all().map((c) => c.name);
   if (!exCols.includes('delai_debut_defaut')) {
     db.exec('ALTER TABLE exercises ADD COLUMN delai_debut_defaut INTEGER');
+  }
+  if (!exCols.includes('activite')) {
+    db.exec("ALTER TABLE exercises ADD COLUMN activite TEXT NOT NULL DEFAULT 'générale'");
   }
   const mediaInfo = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'media'").get();
   if (!mediaInfo) {
