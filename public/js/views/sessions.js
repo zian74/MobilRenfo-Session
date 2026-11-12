@@ -25,9 +25,60 @@ function itemParamsText(it) {
 export async function renderSessions() {
   const main = document.getElementById('app-main');
   clear(main);
+  const importInput = input('file', { accept: 'application/json,.json', style: 'display:none', 'aria-label': 'Importer une session (JSON)' });
   main.append(h('div', { class: 'page-title' },
     h('h1', {}, 'Fiches de session'),
-    h('div', { class: 'page-actions' }, h('a', { class: 'btn primary', href: '#/sessions/nouvelle' }, '+ Nouvelle session'))));
+    h('div', { class: 'page-actions' },
+      h('button', { class: 'btn', onclick: () => importInput.click() }, '\u2b06 Importer une session (JSON)'),
+      h('a', { class: 'btn primary', href: '#/sessions/nouvelle' }, '+ Nouvelle session'))));
+  main.append(importInput);
+
+  importInput.addEventListener('change', async () => {
+    const f = importInput.files?.[0];
+    if (!f) return;
+    try {
+      const obj = JSON.parse(await f.text());
+      const toImport = Array.isArray(obj) ? obj : Array.isArray(obj?.sessions) ? obj.sessions : [obj];
+      if (!toImport.length || toImport.some((s) => !s || typeof s !== 'object' || !s.nom)) {
+        throw new Error('Fichier JSON de session invalide (objet session, ou export avec « sessions », attendu)');
+      }
+      let known = null;
+      try { known = new Set((await get('/api/exercises')).exercises.map((e) => e.id)); } catch { known = null; }
+      let count = 0;
+      for (const s of toImport) {
+        const items = (Array.isArray(s.items) ? s.items : []).map((it) => {
+          const exId = it?.exercise_id != null ? Number(it.exercise_id) : null;
+          const ok = exId == null || known === null || known.has(exId);
+          return {
+            exercise_id: ok ? exId : null,
+            nom_libre: ok ? (it.nom_libre || it.nom || '') : (it.exercise_nom || it.nom || it.nom_libre || 'Exercice importé'),
+            series: it.series ?? null,
+            repetitions: it.repetitions ?? null,
+            temps_travail: it.temps_travail ?? null,
+            repos: it.repos ?? null,
+            charge: it.charge || '',
+            notes: it.notes || '',
+          };
+        });
+        await post('/api/sessions', {
+          nom: s.nom,
+          description: s.description || '',
+          type: s.type || 'mixte',
+          duree_estimee: s.duree_estimee ?? null,
+          echauffement: s.echauffement || '',
+          retour_au_calme: s.retour_au_calme || '',
+          items,
+        });
+        count += 1;
+      }
+      toast(`Import réussi : +${count} session(s)`, 'success');
+      renderSessions();
+    } catch (e) {
+      toast(e.message || 'Fichier invalide', 'error');
+    }
+    importInput.value = '';
+  });
+
   const list = h('div', { class: 'grid cols-2', id: 'sess-list' });
   main.append(list, loading());
   let data;
