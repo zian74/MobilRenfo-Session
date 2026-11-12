@@ -36,10 +36,12 @@ export async function renderExercises() {
   const fav = select([['', 'Tous'], ['1', 'Favoris uniquement']]);
   const sort = select(SORTS, { value: 'nom' });
 
-  const toolbar = h('div', { class: 'toolbar card' },
-    h('div', { class: 'field', style: 'flex:1 1 220px' }, h('label', { class: 'label', for: q.id = 'q' }, 'Recherche'), q),
-    field('Catégorie', cat), field('Activité', act), field('Groupe musculaire', groupe), field('Équipement', equip),
-    field('Niveau', niv), field('Favoris', fav), field('Tri', sort));
+  const toolbar = h('div', { class: 'toolbar toolbar-rows card' },
+    h('div', { class: 'toolbar-row filters' },
+      field('Activité', act), field('Catégorie', cat), field('Niveau', niv), field('Groupe musculaire', groupe), field('Équipement', equip)),
+    h('div', { class: 'toolbar-row' },
+      field('Tri', sort), field('Favoris', fav),
+      h('div', { class: 'field', style: 'flex:1 1 220px' }, h('label', { class: 'label', for: q.id = 'q' }, 'Recherche'), q)));
   main.append(toolbar);
 
   const list = h('div', { class: 'grid cols-3', id: 'ex-list' });
