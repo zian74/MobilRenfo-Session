@@ -92,6 +92,31 @@ test('exemple: docs/exemple-exercices.json est importable (2 exercices de renfor
   resetLocalData();
 });
 
+test('exemple: docs/exemple-session-trail.json est importable (session liée à 5 exercices trail)', async () => {
+  const fs = await import('node:fs');
+  const json = JSON.parse(fs.readFileSync(new URL('../docs/exemple-session-trail.json', import.meta.url), 'utf8'));
+  resetLocalData();
+  const res = importData(json);
+  assert.equal(res.counts.exercises, 5);
+  assert.equal(res.counts.sessions, 1);
+  const { session } = await get('/api/sessions/1');
+  assert.equal(session.nom, 'Séance trail — jambes & gainage');
+  assert.equal(session.type, 'renforcement');
+  assert.equal(session.items.length, 5);
+  assert.deepEqual(
+    session.items.map((it) => it.exercise_nom),
+    ['Squat', 'Fente bulgare', 'Step-up', 'Soulevé de terre roumain', 'Gainage ventral (planche)']
+  );
+  assert.ok(session.items.every((it) => it.exercise_id != null));
+  const plank = session.items.find((it) => it.exercise_nom.includes('planche'));
+  assert.equal(plank.temps_travail, 45);
+  assert.equal(plank.series, 3);
+  importData(JSON.parse(fs.readFileSync(new URL('../docs/exercices-trail.json', import.meta.url), 'utf8')));
+  const list = await get('/api/exercises?activite=trail');
+  assert.equal(list.exercises.length, 15);
+  resetLocalData();
+});
+
 test('V2 static: import = fusion, les fiches existantes ne sont pas écrasées', async () => {
   const fs = await import('node:fs');
   resetLocalData();
