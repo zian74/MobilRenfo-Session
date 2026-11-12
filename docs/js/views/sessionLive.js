@@ -143,6 +143,7 @@ function renderLiveRun({ title, steps, countdownAvant, backHash, retourAuCalme =
 
   const phaseEl = h('div', { class: 'live-phase' }, '');
   const exEl = h('div', { class: 'live-exercise' }, '');
+  const seriesEl = h('div', { class: 'live-series' }, '');
   const metaEl = h('div', { class: 'live-meta' }, '');
   const timerEl = h('div', { class: 'live-timer', role: 'timer', 'aria-live': 'off' }, '');
   const progressFill = h('div', {});
@@ -151,7 +152,7 @@ function renderLiveRun({ title, steps, countdownAvant, backHash, retourAuCalme =
   const controls = h('div', { class: 'live-controls' });
   const countEl = h('span', { class: 'muted small' }, '');
   const stage = h('div', { class: 'live-stage intro' },
-    phaseEl, exEl, metaEl, timerEl, progressBar, nextEl, controls);
+    exEl, phaseEl, seriesEl, metaEl, timerEl, progressBar, nextEl, controls);
 
   const totalSeries = steps.reduce((a, s) => a + s.series, 0);
 
@@ -210,18 +211,21 @@ function renderLiveRun({ title, steps, countdownAvant, backHash, retourAuCalme =
     if (run.phase === 'done') {
       phaseEl.textContent = 'Séance terminée';
       exEl.textContent = 'Bravo ! 🎉';
+      seriesEl.textContent = '';
       metaEl.textContent = `${steps.length} exercice${steps.length > 1 ? 's' : ''} terminé${steps.length > 1 ? 's' : ''}`;
       nextEl.textContent = retourAuCalme ? `Retour au calme : ${retourAuCalme}` : '';
     } else {
       const it = steps[run.ei];
       phaseEl.textContent = { intro: 'Prépare-toi…', work: 'Travail', rest: 'Repos' }[run.phase];
       exEl.textContent = `${run.ei + 1}. ${it.title}`;
-      const parts = [`Série ${run.si}/${it.series}`];
-      if (it.reps) parts.push(`${it.reps} répétitions`);
+      const serieParts = [`Série ${run.si}/${it.series}`];
+      if (it.reps) serieParts.push(`${it.reps} répétitions`);
+      seriesEl.textContent = serieParts.join(' | ');
+      const parts = [];
       if (it.work) parts.push(`${it.work} s de travail${it.workEstime ? ' (estimé)' : ''}`);
       if (it.rest) parts.push(`repos ${it.rest} s`);
       if (it.charge) parts.push(it.charge);
-      metaEl.textContent = parts.join(' · ');
+      metaEl.textContent = parts.join(' | ');
       const next = steps[run.ei + 1];
       nextEl.textContent = next ? `Exercice suivant : ${next.title}` : '';
     }
