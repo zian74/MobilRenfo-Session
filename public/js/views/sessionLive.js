@@ -310,7 +310,7 @@ function renderLiveRun({ title, steps, countdownAvant, backHash, retourAuCalme =
     const rem = Math.max(0, run.endAt - Date.now());
     run.remainingMs = rem;
     const whole = Math.ceil(rem / 1000);
-    if (run.phase === 'intro' && whole <= 3 && whole > 0 && whole !== run.lastWhole) {
+    if (whole <= 4 && whole > 0 && whole !== run.lastWhole) {
       run.lastWhole = whole;
       run.audio?.beep(520, 0.08);
     }
