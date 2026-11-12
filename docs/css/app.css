@@ -455,7 +455,8 @@ video.media-preview { width: 100%; max-height: 260px; background: #000; border-r
 .live-stage.done { border-color: var(--success); background: #e7f5ee; }
 .live-stage.paused { opacity: 0.75; }
 .live-phase { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.live-exercise { font-size: 1.6rem; font-weight: 700; margin: 8px 0 4px; }
+.live-exercise { font-size: 1.6rem; font-weight: 700; margin: 0 0 2px; }
+.live-series { font-size: 1.15rem; font-weight: 600; margin: 4px 0 2px; }
 .live-meta { color: var(--muted); margin-bottom: 10px; }
 .live-timer { font-size: 4.2rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.05; margin: 6px 0 12px; }
 .live-progress { height: 10px; background: #eef1f5; border-radius: 999px; overflow: hidden; margin: 0 auto 14px; max-width: 420px; }
