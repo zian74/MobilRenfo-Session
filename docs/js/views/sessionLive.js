@@ -89,7 +89,7 @@ export async function renderSessionLive(sessionId) {
       emptyState('Cette session ne contient aucun exercice.', h('a', { class: 'btn primary', href: `#/sessions/${session.id}` }, '← Modifier la session'))));
     return;
   }
-  renderLiveRun({ title: session.nom, steps, countdownAvant: 0, backHash: `#/sessions/${session.id}/lecture`, retourAuCalme: session.retour_au_calme || '' });
+  renderLiveRun({ title: session.nom, steps, countdownAvant: 0, backHash: '#/sessions', retourAuCalme: session.retour_au_calme || '' });
 }
 
 export async function renderExerciseLive(exerciseId) {
