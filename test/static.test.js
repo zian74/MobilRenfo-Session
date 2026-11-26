@@ -2,7 +2,7 @@ import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 
 const api = await import('../docs/js/api.js');
-const { get, post, put, del, uploadMedia, exportData, resetLocalData, ApiError } = api;
+const { get, post, put, del, uploadMedia, exportData, importData, resetLocalData, ApiError } = api;
 
 before(() => {
   resetLocalData();
@@ -78,6 +78,54 @@ test('static: sessions avec exercices ordonnés + réordonnancement + duplicatio
   assert.equal(r.sessions.length, 2);
   r = await get(`/api/sessions/${sId}`);
   assert.equal(r.session.items.length, 3);
+});
+
+test('static: sessions avec activité/catégorie/type/niveau + filtres et tri', async () => {
+  resetLocalData();
+  let r = await post('/api/sessions', { nom: 'Trail jambes', categorie: 'renforcement', activite: 'trail', type: 'renforcement', niveau: 'avancé', duree_estimee: 45, items: [] });
+  const s1 = r.session.id;
+  assert.equal(r.session.categorie, 'renforcement');
+  assert.equal(r.session.activite, 'trail');
+  assert.equal(r.session.type, 'renforcement');
+  assert.equal(r.session.niveau, 'avancé');
+  r = await post('/api/sessions', { nom: 'Golf mobilité', categorie: 'mobilité', activite: 'golf', type: 'mobilité', niveau: 'débutant', duree_estimee: 20, items: [] });
+  const s2 = r.session.id;
+  r = await post('/api/sessions', { nom: 'Course mix', activite: 'course à pied', items: [] });
+  const s3 = r.session.id;
+  assert.equal(r.session.categorie, 'renforcement');
+  assert.equal(r.session.type, 'mixte');
+  assert.equal(r.session.niveau, 'débutant');
+
+  r = await get('/api/sessions?activite=trail');
+  assert.deepEqual(r.sessions.map((s) => s.id), [s1]);
+  r = await get('/api/sessions?categorie=mobilité');
+  assert.deepEqual(r.sessions.map((s) => s.id), [s2]);
+  r = await get('/api/sessions?type=mixte');
+  assert.deepEqual(r.sessions.map((s) => s.id), [s3]);
+  r = await get('/api/sessions?niveau=avancé');
+  assert.deepEqual(r.sessions.map((s) => s.id), [s1]);
+  r = await get('/api/sessions?activite=trail&niveau=débutant');
+  assert.equal(r.sessions.length, 0);
+  r = await get('/api/sessions?sort=nom');
+  assert.deepEqual(r.sessions.map((s) => s.nom), ['Course mix', 'Golf mobilité', 'Trail jambes']);
+  r = await get('/api/sessions?sort=duree');
+  assert.deepEqual(r.sessions.map((s) => s.id), [s3, s2, s1]);
+
+  r = await put(`/api/sessions/${s1}`, { nom: 'Trail jambes', categorie: 'mobilité', activite: 'trail', type: 'renforcement', niveau: 'intermédiaire', items: [] });
+  assert.equal(r.session.categorie, 'mobilité');
+  assert.equal(r.session.niveau, 'intermédiaire');
+  r = await post(`/api/sessions/${s1}/duplicate`);
+  assert.equal(r.session.activite, 'trail');
+  assert.equal(r.session.categorie, 'mobilité');
+
+  const exp = await exportData();
+  resetLocalData();
+  const res = importData(JSON.parse(JSON.stringify(exp)));
+  assert.equal(res.added.sessions, 4);
+  r = await get('/api/sessions?activite=trail');
+  assert.equal(r.sessions.length, 2);
+  assert.ok(r.sessions.every((s) => s.categorie === 'mobilité' && s.niveau === 'intermédiaire'));
+  resetLocalData();
 });
 
 test('static: planification (hebdo, custom+fin, déplacement), logs, historique, stats', async () => {

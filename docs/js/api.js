@@ -122,7 +122,10 @@ function parseSessionInput(body) {
   return {
     nom: str(body?.nom, { max: 120, required: true }),
     description: str(body?.description, { max: 2000 }),
+    categorie: oneOf(str(body?.categorie, { max: 30 }), CATEGORIES, 'renforcement'),
+    activite: oneOf(str(body?.activite, { max: 30 }), ACTIVITES, 'générale'),
     type: oneOf(str(body?.type, { max: 20 }), TYPES, 'mixte'),
+    niveau: oneOf(str(body?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
     duree_estimee: intOrNull(body?.duree_estimee, { min: 0, max: 24 * 60 }),
     echauffement: str(body?.echauffement, { max: 1000 }),
     retour_au_calme: str(body?.retour_au_calme, { max: 1000 }),
@@ -515,14 +518,21 @@ async function route(method, path, body) {
   }
 
   if (p === '/api/sessions' && method === 'GET') {
-    let list = data.sessions.map((s) => ({ id: s.id, nom: s.nom, description: s.description, type: s.type, duree_estimee: s.duree_estimee, partage: s.partage, updated_at: s.updated_at, created_at: s.created_at, nb_exercices: s.items.length }));
+    let list = data.sessions.map((s) => ({ id: s.id, nom: s.nom, description: s.description, categorie: s.categorie || 'renforcement', activite: s.activite || 'générale', type: s.type, niveau: s.niveau || 'débutant', duree_estimee: s.duree_estimee, partage: s.partage, updated_at: s.updated_at, created_at: s.created_at, nb_exercices: s.items.length }));
     const qq = str(q.get('q'), { max: 100 });
     if (qq) {
       const needle = qq.toLowerCase();
       list = list.filter((s) => `${s.nom} ${s.description}`.toLowerCase().includes(needle));
     }
+    if (q.get('categorie') && CATEGORIES.includes(q.get('categorie'))) list = list.filter((s) => s.categorie === q.get('categorie'));
+    if (q.get('activite') && ACTIVITES.includes(q.get('activite'))) list = list.filter((s) => s.activite === q.get('activite'));
     if (q.get('type') && TYPES.includes(q.get('type'))) list = list.filter((s) => s.type === q.get('type'));
-    list.sort((a, b) => (b.updated_at - a.updated_at) || b.id - a.id);
+    if (q.get('niveau') && NIVEAUX.includes(q.get('niveau'))) list = list.filter((s) => s.niveau === q.get('niveau'));
+    const sort = q.get('sort');
+    if (sort === 'nom') list.sort((a, b) => a.nom.localeCompare(b.nom) || b.id - a.id);
+    else if (sort === 'ancien') list.sort((a, b) => (a.created_at - b.created_at) || b.id - a.id);
+    else if (sort === 'duree') list.sort((a, b) => Number(a.duree_estimee == null) - Number(b.duree_estimee == null) || (a.duree_estimee ?? 0) - (b.duree_estimee ?? 0) || b.id - a.id);
+    else list.sort((a, b) => (b.updated_at - a.updated_at) || b.id - a.id);
     return { sessions: list };
   }
   if (p === '/api/sessions' && method === 'POST') {
@@ -530,7 +540,8 @@ async function route(method, path, body) {
     const now = Date.now();
     const session = {
       id: nextId('session'),
-      nom: parsed.nom, description: parsed.description, type: parsed.type,
+      nom: parsed.nom, description: parsed.description,
+      categorie: parsed.categorie, activite: parsed.activite, type: parsed.type, niveau: parsed.niveau,
       duree_estimee: parsed.duree_estimee ?? estimatedDuration(parsed.items.map(resolveItemDefaults)),
       echauffement: parsed.echauffement, retour_au_calme: parsed.retour_au_calme,
       partage: parsed.partage, items: [], created_at: now, updated_at: now,
@@ -550,7 +561,8 @@ async function route(method, path, body) {
     if (!s) throw new ApiError(404, 'Session introuvable');
     const parsed = parseSessionInput(body);
     Object.assign(s, {
-      nom: parsed.nom, description: parsed.description, type: parsed.type,
+      nom: parsed.nom, description: parsed.description,
+      categorie: parsed.categorie, activite: parsed.activite, type: parsed.type, niveau: parsed.niveau,
       duree_estimee: parsed.duree_estimee ?? estimatedDuration(parsed.items.map(resolveItemDefaults)),
       echauffement: parsed.echauffement, retour_au_calme: parsed.retour_au_calme, partage: parsed.partage,
       updated_at: Date.now(),
@@ -758,7 +770,10 @@ export function importData(obj) {
     id: Number(s?.id) || 0,
     nom: str(s?.nom, { max: 120, required: true }),
     description: str(s?.description, { max: 2000 }),
+    categorie: oneOf(str(s?.categorie, { max: 30 }), CATEGORIES, 'renforcement'),
+    activite: oneOf(str(s?.activite, { max: 30 }), ACTIVITES, 'générale'),
     type: oneOf(str(s?.type, { max: 20 }), TYPES, 'mixte'),
+    niveau: oneOf(str(s?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
     duree_estimee: intOrNull(s?.duree_estimee, { min: 0, max: 24 * 60 }),
     echauffement: str(s?.echauffement, { max: 1000 }),
     retour_au_calme: str(s?.retour_au_calme, { max: 1000 }),

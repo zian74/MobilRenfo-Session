@@ -6,6 +6,9 @@ const router = Router();
 router.use(requireAuth);
 
 const TYPES = ['renforcement', 'mobilité', 'mixte'];
+const CATEGORIES = ['renforcement', 'mobilité'];
+const NIVEAUX = ['débutant', 'intermédiaire', 'avancé'];
+const ACTIVITES = ['générale', 'course à pied', 'trail', 'golf'];
 
 function parseSession(row) {
   return { ...row, effectueeCount: undefined };
@@ -40,7 +43,10 @@ function readSessionBody(body) {
   return {
     nom: str(body?.nom, { max: 120, required: true }),
     description: str(body?.description, { max: 2000 }),
+    categorie: oneOf(str(body?.categorie, { max: 30 }), CATEGORIES, 'renforcement'),
+    activite: oneOf(str(body?.activite, { max: 30 }), ACTIVITES, 'générale'),
     type: oneOf(str(body?.type, { max: 20 }), TYPES, 'mixte'),
+    niveau: oneOf(str(body?.niveau, { max: 30 }), NIVEAUX, 'débutant'),
     duree_estimee: intOrNull(body?.duree_estimee, { min: 0, max: 24 * 60 }),
     echauffement: str(body?.echauffement, { max: 1000 }),
     retour_au_calme: str(body?.retour_au_calme, { max: 1000 }),
@@ -116,14 +122,33 @@ router.get('/', (req, res) => {
     where += ' AND (nom LIKE ? OR description LIKE ?)';
     params.push(`%${q}%`, `%${q}%`);
   }
+  if (req.query.categorie && CATEGORIES.includes(req.query.categorie)) {
+    where += ' AND categorie = ?';
+    params.push(req.query.categorie);
+  }
+  if (req.query.activite && ACTIVITES.includes(req.query.activite)) {
+    where += ' AND activite = ?';
+    params.push(req.query.activite);
+  }
   if (req.query.type && TYPES.includes(req.query.type)) {
     where += ' AND type = ?';
     params.push(req.query.type);
   }
+  if (req.query.niveau && NIVEAUX.includes(req.query.niveau)) {
+    where += ' AND niveau = ?';
+    params.push(req.query.niveau);
+  }
+  const sorts = {
+    recent: 's.updated_at DESC, s.id DESC',
+    nom: 's.nom COLLATE NOCASE ASC, s.id DESC',
+    ancien: 's.created_at ASC, s.id DESC',
+    duree: 's.duree_estimee IS NULL, s.duree_estimee ASC, s.id DESC',
+  };
+  const sort = sorts[req.query.sort] || sorts.recent;
   const rows = db
     .prepare(
       `SELECT s.*, (SELECT COUNT(*) FROM session_exercises se WHERE se.session_id = s.id) AS nb_exercices
-       FROM sessions s WHERE ${where} ORDER BY s.updated_at DESC, s.id DESC`
+       FROM sessions s WHERE ${where} ORDER BY ${sort}`
     )
     .all(...params);
   res.json({ sessions: rows.map(parseSession) });
@@ -141,9 +166,9 @@ router.post('/', (req, res) => {
     const db = getDb();
     const duree = data.duree_estimee ?? estimatedDuration(data.items.map((it) => resolveItemDefaults(db, req.user.id, it)));
     const info = db.prepare(
-      `INSERT INTO sessions (user_id, nom, description, type, duree_estimee, echauffement, retour_au_calme, partage)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(req.user.id, data.nom, data.description, data.type, duree, data.echauffement, data.retour_au_calme, data.partage);
+      `INSERT INTO sessions (user_id, nom, description, categorie, activite, type, niveau, duree_estimee, echauffement, retour_au_calme, partage)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(req.user.id, data.nom, data.description, data.categorie, data.activite, data.type, data.niveau, duree, data.echauffement, data.retour_au_calme, data.partage);
     const sessionId = info.lastInsertRowid;
     saveItems(db, sessionId, req.user.id, data.items);
     res.status(201).json({ session: sessionWithExercises(db, sessionId, req.user.id) });
@@ -163,9 +188,9 @@ router.put('/:id', (req, res) => {
     const data = readSessionBody(req.body);
     const duree = data.duree_estimee ?? estimatedDuration(data.items.map((it) => resolveItemDefaults(db, req.user.id, it)));
     db.prepare(
-      `UPDATE sessions SET nom = ?, description = ?, type = ?, duree_estimee = ?, echauffement = ?,
-        retour_au_calme = ?, partage = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
-    ).run(data.nom, data.description, data.type, duree, data.echauffement, data.retour_au_calme, data.partage, id, req.user.id);
+      `UPDATE sessions SET nom = ?, description = ?, categorie = ?, activite = ?, type = ?, niveau = ?, duree_estimee = ?,
+        echauffement = ?, retour_au_calme = ?, partage = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`
+    ).run(data.nom, data.description, data.categorie, data.activite, data.type, data.niveau, duree, data.echauffement, data.retour_au_calme, data.partage, id, req.user.id);
     saveItems(db, id, req.user.id, data.items);
     res.json({ session: sessionWithExercises(db, id, req.user.id) });
   } catch (e) {
@@ -180,9 +205,9 @@ router.post('/:id/duplicate', (req, res) => {
   const src = db.prepare('SELECT * FROM sessions WHERE id = ? AND user_id = ?').get(id, req.user.id);
   if (!src) return apiError(res, 404, 'Session introuvable');
   const info = db.prepare(
-    `INSERT INTO sessions (user_id, nom, description, type, duree_estimee, echauffement, retour_au_calme, partage)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(req.user.id, `${src.nom} (copie)`, src.description, src.type, src.duree_estimee, src.echauffement, src.retour_au_calme, src.partage);
+    `INSERT INTO sessions (user_id, nom, description, categorie, activite, type, niveau, duree_estimee, echauffement, retour_au_calme, partage)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(req.user.id, `${src.nom} (copie)`, src.description, src.categorie, src.activite, src.type, src.niveau, src.duree_estimee, src.echauffement, src.retour_au_calme, src.partage);
   const newId = info.lastInsertRowid;
   db.prepare(
     `INSERT INTO session_exercises (session_id, exercise_id, ordre, nom_libre, series, repetitions, temps_travail, repos, charge, notes)

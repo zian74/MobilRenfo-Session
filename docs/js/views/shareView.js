@@ -12,7 +12,10 @@ export function renderShared(payload) {
     session = {
       nom: String(data.nom),
       description: String(data.description || ''),
+      categorie: data.categorie || 'renforcement',
+      activite: data.activite || 'générale',
       type: data.type || 'mixte',
+      niveau: data.niveau || 'débutant',
       duree_estimee: data.duree_estimee ?? null,
       echauffement: String(data.echauffement || ''),
       retour_au_calme: String(data.retour_au_calme || ''),

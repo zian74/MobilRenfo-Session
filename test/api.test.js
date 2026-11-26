@@ -236,6 +236,58 @@ test('sessions: création avec exercices ordonnés, réordonnancement, duplicati
   assert.equal(r.status, 200);
 });
 
+test('sessions: activité/catégorie/type/niveau + filtres et tri de la liste', async () => {
+  const alice = await registerUser('sess-filtres-alice@test.fr');
+
+  let r = await alice.post('/api/sessions', { nom: 'Trail jambes', categorie: 'renforcement', activite: 'trail', type: 'renforcement', niveau: 'avancé', duree_estimee: 45, items: [] });
+  assert.equal(r.status, 201, JSON.stringify(r.data));
+  assert.equal(r.data.session.categorie, 'renforcement');
+  assert.equal(r.data.session.activite, 'trail');
+  assert.equal(r.data.session.type, 'renforcement');
+  assert.equal(r.data.session.niveau, 'avancé');
+  const s1 = r.data.session.id;
+
+  r = await alice.post('/api/sessions', { nom: 'Golf mobilité', categorie: 'mobilité', activite: 'golf', type: 'mobilité', niveau: 'débutant', duree_estimee: 20, items: [] });
+  const s2 = r.data.session.id;
+
+  r = await alice.post('/api/sessions', { nom: 'Course mix', activite: 'course à pied', items: [] });
+  const s3 = r.data.session.id;
+  assert.equal(r.data.session.categorie, 'renforcement');
+  assert.equal(r.data.session.type, 'mixte');
+  assert.equal(r.data.session.niveau, 'débutant');
+
+  r = await alice.get('/api/sessions?activite=trail');
+  assert.deepEqual(r.data.sessions.map((s) => s.id), [s1]);
+  r = await alice.get('/api/sessions?categorie=mobilité');
+  assert.deepEqual(r.data.sessions.map((s) => s.id), [s2]);
+  r = await alice.get('/api/sessions?type=mixte');
+  assert.deepEqual(r.data.sessions.map((s) => s.id), [s3]);
+  r = await alice.get('/api/sessions?niveau=avancé');
+  assert.deepEqual(r.data.sessions.map((s) => s.id), [s1]);
+  r = await alice.get('/api/sessions?activite=trail&categorie=mobilité');
+  assert.equal(r.data.sessions.length, 0);
+  r = await alice.get('/api/sessions?niveau=expert');
+  assert.equal(r.data.sessions.length, 3);
+
+  r = await alice.get('/api/sessions?sort=nom');
+  assert.deepEqual(r.data.sessions.map((s) => s.nom), ['Course mix', 'Golf mobilité', 'Trail jambes']);
+  r = await alice.get('/api/sessions?sort=duree');
+  assert.deepEqual(r.data.sessions.map((s) => s.id), [s3, s2, s1]);
+
+  r = await alice.put(`/api/sessions/${s1}`, { nom: 'Trail jambes', categorie: 'mobilité', activite: 'trail', type: 'renforcement', niveau: 'intermédiaire', items: [] });
+  assert.equal(r.status, 200);
+  assert.equal(r.data.session.categorie, 'mobilité');
+  assert.equal(r.data.session.niveau, 'intermédiaire');
+  r = await alice.get(`/api/sessions/${s1}`);
+  assert.equal(r.data.session.activite, 'trail');
+
+  r = await alice.post(`/api/sessions/${s1}/duplicate`);
+  assert.equal(r.status, 201);
+  assert.equal(r.data.session.activite, 'trail');
+  assert.equal(r.data.session.categorie, 'mobilité');
+  assert.equal(r.data.session.niveau, 'intermédiaire');
+});
+
 test('planification: créer, récurrence hebdomadaire, déplacer, effectuer + logs, historique, stats', async () => {
   const alice = await registerUser('plan-alice@test.fr');
 
