@@ -1,0 +1,946 @@
+{
+  "exportedAt": "2026-11-11T17:00:00.000Z",
+  "profile": {
+    "name": "",
+    "niveau": "débutant",
+    "objectifs": [
+      "golf"
+    ],
+    "createdAt": "2026-11-11T17:00:00.000Z"
+  },
+  "exercises": [
+    {
+      "id": 1,
+      "nom": "Squat gobelet",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "quadriceps, fessiers",
+      "niveau": "débutant",
+      "equipement": [
+        "haltère",
+        "kettlebell"
+      ],
+      "description": "Debout, pieds largeur d'épaules, un haltère ou kettlebell tenu verticalement contre la poitrine, coudes hauts. Fléchis les genoux et les hanches en poussant les fesses en arrière, dos droit, puis remonte en poussant dans les talons. La position basse stable est la base du transfert de poids dans le swing.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "haltère 12 kg",
+      "tags": [
+        "jambes",
+        "base",
+        "gobelet"
+      ],
+      "favori": true,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 2,
+      "nom": "Fente arrière avec rotation",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "quadriceps, fessiers, obliques",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "haltères",
+        "poids du corps"
+      ],
+      "description": "Fente arrière (pas en arrière), torse droit, bras pliés à 90° devant la poitrine comme au golf. En bas de la fente, tourne le buste vers la jambe avant, reviens au centre, puis remonte. Alterne les jambes. Travaille simultanément les jambes et la rotation thoracique du swing.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps, haltères en option",
+      "tags": [
+        "fente",
+        "rotation",
+        "thoracique"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 3,
+      "nom": "Soulevé de terre roumain",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "ischio-jambiers, fessiers",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "haltères",
+        "barre"
+      ],
+      "description": "Debout, jambes légèrement fléchies, haltères le long des cuisses, dos neutre. Pousse les hanches en arrière jusqu'à sentir l'étirement des ischios, puis redresse en serrant les fessiers. La chaîne postérieure bien tonique stabilise la posture penchée du golf et protège le bas du dos.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "haltères 2 x 10 kg",
+      "tags": [
+        "chaîne postérieure",
+        "ischios",
+        "posture"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 4,
+      "nom": "Hip thrust",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "fessiers",
+      "niveau": "débutant",
+      "equipement": [
+        "banc",
+        "poids du corps"
+      ],
+      "description": "Omoplates sur un banc, pieds à plat au sol, genoux à 90°. Pousse les hanches vers le haut jusqu'à l'alignement épaules-hanches-genoux, serre les fessiers 2 secondes en haut. Les fessiers sont le moteur de la rotation des hanches au downswing.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "fessiers",
+        "hanche",
+        "puissance"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 5,
+      "nom": "Fente bulgare",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "quadriceps, fessiers",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "banc",
+        "haltères"
+      ],
+      "description": "Pied arrière sur un banc, grand pas en avant, descends le bassin jusqu'à la parallèle de la cuisse avant, genou stable. Remonte en poussant dans le talon avant. Développe la force unilatérale et l'équilibre, nécessaires pour tenir la posture en fente du swing sans bouger les hanches.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps, haltères en option",
+      "tags": [
+        "unilatéral",
+        "stabilité",
+        "jambes"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 6,
+      "nom": "Planche avec toucher d'épaule",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "gainage, abdominaux, épaules",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "En position de planche sur les mains, corps aligné. Sans bouger les hanches, amène une main toucher l'épaule opposée, reviens, puis l'autre main (10 touchers au total = 1 série complète). Renforce le gainage anti-rotation qui empêche le bassin de tourner trop tôt dans le swing.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 20,
+      "temps_travail_defaut": null,
+      "repos_defaut": 60,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "gainage",
+        "anti-rotation",
+        "core"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 7,
+      "nom": "Pallof press",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "obliques, transverse, gainage profond",
+      "niveau": "avancé",
+      "equipement": [
+        "bande élastique"
+      ],
+      "description": "Debout de côté par rapport à l'ancrage de la bande, pieds écartés, tiens la bande à deux mains contre la poitrine. Pousse les mains droit devant en résistant à la rotation de la bande, reviens lentement. Exercice anti-rotation de référence pour un transfert de force propre du bas vers le haut du corps.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 60,
+      "charge_conseille": "bande élastique moyenne",
+      "tags": [
+        "anti-rotation",
+        "core",
+        "prévention"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 8,
+      "nom": "Rowing haltère un bras",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "grand dorsal, rhomboïdes, biceps",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "haltère",
+        "banc"
+      ],
+      "description": "Un genou et une main sur un banc, dos parallèle au sol, haltère dans l'autre main. Tire le coude le long du corps en serrant l'omoplate, redescends lentement. Alterne les côtés. Un dos fort maintient l'angle du buste et la vitesse de la tête de club.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 60,
+      "charge_conseille": "haltère 14 kg",
+      "tags": [
+        "dos",
+        "tirage",
+        "posture"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 9,
+      "nom": "Élévation latérale",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "deltoïdes, épaules",
+      "niveau": "débutant",
+      "equipement": [
+        "haltères"
+      ],
+      "description": "Debout, haltères le long du corps, coudes légèrement fléchis. Monte les bras sur les côtés jusqu'à la hauteur des épaules, redescends lentement sans balancer. Des épaules solides encaissent les accélérations du swing et protègent l'articulation.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 60,
+      "charge_conseille": "haltères 2 x 4 kg",
+      "tags": [
+        "épaules",
+        "deltoïdes"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 10,
+      "nom": "Presse à cuisses",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "quadriceps, fessiers",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "machine"
+      ],
+      "description": "Assis sur la machine, pieds à plat largeur de hanches sur la plateforme, dos et bassin collés au siège. Pousse la plateforme en tendant les jambes sans verrouiller les genoux, reviens lentement. Renforce les jambes pour ancrer la posture et transférer la force du sol.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "machine 40 kg",
+      "tags": [
+        "jambes",
+        "machine",
+        "base"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 11,
+      "nom": "Gainage latéral (planche latérale)",
+      "categorie": "renforcement",
+      "activite": "golf",
+      "groupe_musculaire": "obliques, carré des lombes",
+      "niveau": "débutant",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Allongé sur le côté, appui sur l'avant-bras et le bord du pied, hanche levée, corps aligné. Tiens en serrant les abdominaux. Alterne les côtés. Les obliques bien toniques limitent la flexion latérale du buste pendant le swing et protègent les lombaires.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 30,
+      "repos_defaut": 60,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "gainage",
+        "latéral",
+        "obliques"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 12,
+      "nom": "Rotation thoracique assis",
+      "categorie": "mobilité",
+      "activite": "golf",
+      "groupe_musculaire": "colonne thoracique, grand dorsal",
+      "niveau": "débutant",
+      "equipement": [
+        "tapis",
+        "chaise"
+      ],
+      "description": "Assis jambes écartées, mains derrière la nuque, coudes ouverts. Tourne le buste d'un côté en gardant les hanches face à l'avant, reviens au centre, puis de l'autre côté (10 rotations au total). Mobilise la colonne thoracique, la principale source de rotation du swing quand les hanches sont limitées.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 30,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "mobilité",
+        "rotation",
+        "thoracique",
+        "swing"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 13,
+      "nom": "Mobilité hanche 90/90",
+      "categorie": "mobilité",
+      "activite": "golf",
+      "groupe_musculaire": "hanches, rotateurs internes/externes",
+      "niveau": "débutant",
+      "equipement": [
+        "tapis"
+      ],
+      "description": "Assis au sol, jambe avant pliée à 90° devant, jambe arrière pliée à 90° sur le côté. Fais basculer le bassin d'avant en arrière pour échanger les positions des jambes, dos droit. Assouplit les rotateurs de hanche qui pivotent dans le backswing et le downswing.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 45,
+      "repos_defaut": 30,
+      "charge_conseille": "tapis",
+      "tags": [
+        "mobilité",
+        "hanche",
+        "rotation"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 14,
+      "nom": "World's greatest stretch",
+      "categorie": "mobilité",
+      "activite": "golf",
+      "groupe_musculaire": "hanches, thoracique, ischios, chevilles",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "tapis"
+      ],
+      "description": "En fente avant profonde, pose les deux mains au sol à l'intérieur du pied avant, puis lève le bras du même côté vers le ciel en tournant le buste, redescends. Alterne les côtés (8 par côté). Enchaînement global qui ouvre hanches, colonne et chevilles avant une séance de golf.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 8,
+      "temps_travail_defaut": null,
+      "repos_defaut": 30,
+      "charge_conseille": "tapis",
+      "tags": [
+        "mobilité",
+        "globale",
+        "échauffement"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 15,
+      "nom": "Étirement du grand dorsal en rotation",
+      "categorie": "mobilité",
+      "activite": "golf",
+      "groupe_musculaire": "grand dorsal, lombaires, épaules",
+      "niveau": "débutant",
+      "equipement": [
+        "tapis"
+      ],
+      "description": "À genoux, fesses sur les talons, bras tendus devant au sol, puis fais glisser les mains d'un côté en inclinant le buste (position de l'enfant latérale), maintiens 30 secondes, change de côté. Étire le grand dorsal et les lombaires, très sollicités dans la posture du putting et du swing.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 30,
+      "repos_defaut": 30,
+      "charge_conseille": "tapis",
+      "tags": [
+        "mobilité",
+        "étirement",
+        "dos",
+        "rotation"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    }
+  ],
+  "sessions": [
+    {
+      "id": 1,
+      "nom": "Golf débutant — mobilité & base",
+      "description": "Première séance pour le golf : mobilité thoracique et hanches (rotation du swing), squat gobelet, hip thrust, élévation latérale et gainage latéral. Niveau débutant, charges légères.",
+      "type": "mixte",
+      "duree_estimee": 23,
+      "echauffement": "5 min de marche + mobilité hanches et colonne thoracique ; swings légers sans club puis avec un fer court.",
+      "retour_au_calme": "Étirements grand dorsal, lombaires, ischios et hanches, 30 s par groupe, en respirant calmement.",
+      "partage": "privée",
+      "items": [
+        {
+          "id": 1,
+          "session_id": 1,
+          "ordre": 0,
+          "exercise_id": 12,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 30,
+          "charge": "poids du corps",
+          "notes": "10 rotations au total"
+        },
+        {
+          "id": 2,
+          "session_id": 1,
+          "ordre": 1,
+          "exercise_id": 1,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "haltère 12 kg",
+          "notes": ""
+        },
+        {
+          "id": 3,
+          "session_id": 1,
+          "ordre": 2,
+          "exercise_id": 4,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 4,
+          "session_id": 1,
+          "ordre": 3,
+          "exercise_id": 9,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "haltères 2 x 4 kg",
+          "notes": ""
+        },
+        {
+          "id": 5,
+          "session_id": 1,
+          "ordre": 4,
+          "exercise_id": 11,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 25,
+          "repos": 60,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 6,
+          "session_id": 1,
+          "ordre": 5,
+          "exercise_id": 13,
+          "nom_libre": "",
+          "series": 2,
+          "repetitions": null,
+          "temps_travail": 45,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": ""
+        },
+        {
+          "id": 7,
+          "session_id": 1,
+          "ordre": 6,
+          "exercise_id": 15,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 30,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": "30 s par côté"
+        }
+      ],
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 2,
+      "nom": "Golf intermédiaire — rotation & chaîne postérieure",
+      "description": "Séance orientée rotation du swing et chaîne postérieure : fente arrière avec rotation, soulevé de terre roumain, planche anti-rotation, rowing un bras et mobilité thoracique.",
+      "type": "renforcement",
+      "duree_estimee": 25,
+      "echauffement": "5 min de marche + mobilité hanches et colonne thoracique ; swings légers sans club puis avec un fer court.",
+      "retour_au_calme": "Étirements grand dorsal, lombaires, ischios et hanches, 30 s par groupe, en respirant calmement.",
+      "partage": "privée",
+      "items": [
+        {
+          "id": 8,
+          "session_id": 2,
+          "ordre": 0,
+          "exercise_id": 2,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "poids du corps, haltères en option",
+          "notes": "10 par jambe"
+        },
+        {
+          "id": 9,
+          "session_id": 2,
+          "ordre": 1,
+          "exercise_id": 3,
+          "nom_libre": "",
+          "series": 4,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "haltères 2 x 10 kg",
+          "notes": ""
+        },
+        {
+          "id": 10,
+          "session_id": 2,
+          "ordre": 2,
+          "exercise_id": 6,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 20,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "poids du corps",
+          "notes": "10 touchers par côté"
+        },
+        {
+          "id": 11,
+          "session_id": 2,
+          "ordre": 3,
+          "exercise_id": 8,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "haltère 14 kg",
+          "notes": ""
+        },
+        {
+          "id": 12,
+          "session_id": 2,
+          "ordre": 4,
+          "exercise_id": 12,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 30,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 13,
+          "session_id": 2,
+          "ordre": 5,
+          "exercise_id": 14,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 8,
+          "temps_travail": null,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": "8 par côté"
+        }
+      ],
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 3,
+      "nom": "Golf intermédiaire — jambes & stabilité",
+      "description": "Séance jambes et stabilité de la posture : squat gobelet, fente bulgare, presse à cuisses, hip thrust, gainage latéral et mobilité des hanches.",
+      "type": "renforcement",
+      "duree_estimee": 29,
+      "echauffement": "5 min de marche + mobilité hanches et colonne thoracique ; swings légers sans club puis avec un fer court.",
+      "retour_au_calme": "Étirements grand dorsal, lombaires, ischios et hanches, 30 s par groupe, en respirant calmement.",
+      "partage": "privée",
+      "items": [
+        {
+          "id": 14,
+          "session_id": 3,
+          "ordre": 0,
+          "exercise_id": 1,
+          "nom_libre": "",
+          "series": 4,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "haltère 16 kg",
+          "notes": ""
+        },
+        {
+          "id": 15,
+          "session_id": 3,
+          "ordre": 1,
+          "exercise_id": 5,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "poids du corps, haltères en option",
+          "notes": "10 par jambe"
+        },
+        {
+          "id": 16,
+          "session_id": 3,
+          "ordre": 2,
+          "exercise_id": 10,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "machine 40 kg",
+          "notes": ""
+        },
+        {
+          "id": 17,
+          "session_id": 3,
+          "ordre": 3,
+          "exercise_id": 4,
+          "nom_libre": "",
+          "series": 4,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 18,
+          "session_id": 3,
+          "ordre": 4,
+          "exercise_id": 11,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 30,
+          "repos": 60,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 19,
+          "session_id": 3,
+          "ordre": 5,
+          "exercise_id": 13,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 45,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": ""
+        }
+      ],
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 4,
+      "nom": "Golf avancé — puissance & anti-rotation",
+      "description": "Séance avancée : puissance des jambes (presse, fente bulgare), anti-rotation (Pallof press, planche avec toucher d'épaule), dos et mobilité complète avant compétition.",
+      "type": "renforcement",
+      "duree_estimee": 34,
+      "echauffement": "5 min de marche + mobilité hanches et colonne thoracique ; swings légers sans club puis avec un fer court.",
+      "retour_au_calme": "Étirements grand dorsal, lombaires, ischios et hanches, 30 s par groupe, en respirant calmement.",
+      "partage": "privée",
+      "items": [
+        {
+          "id": 20,
+          "session_id": 4,
+          "ordre": 0,
+          "exercise_id": 10,
+          "nom_libre": "",
+          "series": 4,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "machine 60 kg",
+          "notes": ""
+        },
+        {
+          "id": 21,
+          "session_id": 4,
+          "ordre": 1,
+          "exercise_id": 5,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "haltères 2 x 10 kg",
+          "notes": "10 par jambe"
+        },
+        {
+          "id": 22,
+          "session_id": 4,
+          "ordre": 2,
+          "exercise_id": 3,
+          "nom_libre": "",
+          "series": 4,
+          "repetitions": 8,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "haltères 2 x 14 kg",
+          "notes": ""
+        },
+        {
+          "id": 23,
+          "session_id": 4,
+          "ordre": 3,
+          "exercise_id": 7,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "bande élastique moyenne",
+          "notes": ""
+        },
+        {
+          "id": 24,
+          "session_id": 4,
+          "ordre": 4,
+          "exercise_id": 6,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 20,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 25,
+          "session_id": 4,
+          "ordre": 5,
+          "exercise_id": 9,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "haltères 2 x 6 kg",
+          "notes": ""
+        },
+        {
+          "id": 26,
+          "session_id": 4,
+          "ordre": 6,
+          "exercise_id": 14,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 8,
+          "temps_travail": null,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": "8 par côté"
+        },
+        {
+          "id": 27,
+          "session_id": 4,
+          "ordre": 7,
+          "exercise_id": 15,
+          "nom_libre": "",
+          "series": 2,
+          "repetitions": null,
+          "temps_travail": 30,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": "30 s par côté"
+        }
+      ],
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 5,
+      "nom": "Golf avancé — swing complet & mobilité",
+      "description": "Séance complète haute intensité : fente bulgare, rowing un bras, Pallof press, gainage latéral renforcé, et routine de mobilité thoracique/hanches pour entretenir l'amplitude du swing.",
+      "type": "renforcement",
+      "duree_estimee": 29,
+      "echauffement": "5 min de marche + mobilité hanches et colonne thoracique ; swings légers sans club puis avec un fer court.",
+      "retour_au_calme": "Étirements grand dorsal, lombaires, ischios et hanches, 30 s par groupe, en respirant calmement.",
+      "partage": "privée",
+      "items": [
+        {
+          "id": 28,
+          "session_id": 5,
+          "ordre": 0,
+          "exercise_id": 2,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 90,
+          "charge": "haltères 2 x 6 kg",
+          "notes": "10 par jambe"
+        },
+        {
+          "id": 29,
+          "session_id": 5,
+          "ordre": 1,
+          "exercise_id": 8,
+          "nom_libre": "",
+          "series": 4,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "haltère 18 kg",
+          "notes": ""
+        },
+        {
+          "id": 30,
+          "session_id": 5,
+          "ordre": 2,
+          "exercise_id": 7,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 15,
+          "temps_travail": null,
+          "repos": 60,
+          "charge": "bande élastique moyenne",
+          "notes": ""
+        },
+        {
+          "id": 31,
+          "session_id": 5,
+          "ordre": 3,
+          "exercise_id": 11,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 40,
+          "repos": 60,
+          "charge": "poids du corps",
+          "notes": ""
+        },
+        {
+          "id": 32,
+          "session_id": 5,
+          "ordre": 4,
+          "exercise_id": 12,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 12,
+          "temps_travail": null,
+          "repos": 30,
+          "charge": "poids du corps",
+          "notes": "12 rotations au total"
+        },
+        {
+          "id": 33,
+          "session_id": 5,
+          "ordre": 5,
+          "exercise_id": 13,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 45,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": ""
+        },
+        {
+          "id": 34,
+          "session_id": 5,
+          "ordre": 6,
+          "exercise_id": 14,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": 10,
+          "temps_travail": null,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": "10 par côté"
+        },
+        {
+          "id": 35,
+          "session_id": 5,
+          "ordre": 7,
+          "exercise_id": 15,
+          "nom_libre": "",
+          "series": 3,
+          "repetitions": null,
+          "temps_travail": 30,
+          "repos": 30,
+          "charge": "tapis",
+          "notes": "30 s par côté"
+        }
+      ],
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    }
+  ],
+  "planned": [],
+  "seq": {
+    "exercise": 16,
+    "session": 6,
+    "item": 36,
+    "planned": 1,
+    "log": 1
+  }
+}
