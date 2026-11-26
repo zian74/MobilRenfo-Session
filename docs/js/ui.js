@@ -159,7 +159,11 @@ async function resolveMediaSrc(url) {
 export function mediaPreview(url, { small = false } = {}) {
   const kind = mediaKind(url);
   if (kind === 'image' || kind === 'media') {
-    const img = h('img', { alt: 'Média de l’exercice', class: small ? 'media-thumb' : 'media-preview', loading: 'lazy' });
+    const img = h('img', { alt: 'Illustration de l’exercice', class: small ? 'media-thumb' : 'media-preview', loading: 'lazy' });
+    if (kind === 'media') {
+      // média sans extension dans l'URL : repli vidéo si l'<img> échoue
+      img.addEventListener('error', () => img.replaceWith(h('video', { controls: true, class: small ? 'media-thumb' : 'media-preview', preload: 'metadata' })), { once: true });
+    }
     resolveMediaSrc(url).then((src) => { if (src) img.src = src; });
     return img;
   }
