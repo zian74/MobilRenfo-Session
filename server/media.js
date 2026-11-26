@@ -21,7 +21,7 @@ export const ALLOWED_MEDIA = {
 export const MAX_MEDIA_SIZE = 25 * 1024 * 1024;
 
 export function mediaKeyFromUrl(url) {
-  const m = /^\/api\/media\/([a-f0-9]{32})$/.exec(String(url || ''));
+  const m = /^\/api\/media\/([a-f0-9]{32})(?:\.[a-z0-9]{1,5})?$/i.exec(String(url || ''));
   return m ? m[1] : null;
 }
 
@@ -55,7 +55,7 @@ export function saveMediaFile(userId, filename, mimeHint, buffer) {
   fs.writeFileSync(filePath, buffer);
   getDb().prepare('INSERT INTO media (key, user_id, filename, mime, size) VALUES (?, ?, ?, ?, ?)')
     .run(key, userId, path.basename(filename).slice(0, 200), mime, buffer.length);
-  return { key, mime, size: buffer.length, url: `/api/media/${key}`, filePath };
+  return { key, mime, size: buffer.length, url: `/api/media/${key}.${ext}`, filePath };
 }
 
 export function mediaRow(key) {

@@ -130,11 +130,14 @@ test('V1.5 médias: upload, service privé, ACL, liaison exercice, suppression',
   let r = await alice.upload('/api/media/upload', PNG_1PX, 'image/png', 'capture.png');
   assert.equal(r.status, 201, JSON.stringify(r.data));
   const { url, key } = r.data;
-  assert.match(url, new RegExp(`^/api/media/${key}$`));
+  assert.match(url, new RegExp(`^/api/media/${key}\\.png$`)); // extension dans l'URL = illustration affichée sur la fiche
 
   r = await alice.get(url);
   assert.equal(r.status, 200);
   assert.match(r.headers.get('content-type'), /image\/png/);
+
+  r = await alice.get(`/api/media/${key}`); // URL sans extension (héritage) toujours servie
+  assert.equal(r.status, 200);
 
   r = await bob.get(url);
   assert.equal(r.status, 404);

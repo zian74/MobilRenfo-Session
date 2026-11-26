@@ -7,6 +7,9 @@ import { saveMediaFile, mediaRow, mediaFilePathFor, deleteMediaByKey, MAX_MEDIA_
 const router = Router();
 router.use(requireAuth);
 
+// accepte /api/media/<clé> et /api/media/<clé>.<ext> (l'extension sert à classer image/vidéo côté client)
+const keyFromParam = (p) => String(p || '').replace(/\.[a-z0-9]{1,5}$/i, '');
+
 router.post('/upload', uploadLimiter, (req, res) => {
   try {
     const ct = String(req.headers['content-type'] || '');
@@ -26,7 +29,7 @@ router.post('/upload', uploadLimiter, (req, res) => {
 });
 
 router.get('/:key', (req, res) => {
-  const row = mediaRow(req.params.key);
+  const row = mediaRow(keyFromParam(req.params.key));
   if (!row || row.user_id !== req.user.id) return apiError(res, 404, 'Média introuvable');
   const filePath = mediaFilePathFor(row);
   if (!fs.existsSync(filePath)) return apiError(res, 404, 'Fichier introuvable');
@@ -37,7 +40,7 @@ router.get('/:key', (req, res) => {
 });
 
 router.delete('/:key', (req, res) => {
-  if (!deleteMediaByKey(req.params.key, req.user.id)) return apiError(res, 404, 'Média introuvable');
+  if (!deleteMediaByKey(keyFromParam(req.params.key), req.user.id)) return apiError(res, 404, 'Média introuvable');
   res.json({ ok: true });
 });
 

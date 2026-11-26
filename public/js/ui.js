@@ -141,14 +141,22 @@ export function mediaKind(url) {
 }
 
 export function mediaKey(url) {
-  const m = /^\/api\/media\/([a-f0-9]{32})$/.exec(String(url || ''));
+  const m = /^\/api\/media\/([a-f0-9]{32})(?:\.[a-z0-9]{1,5})?$/i.exec(String(url || ''));
   return m ? m[1] : null;
 }
 
 export function mediaPreview(url, { small = false } = {}) {
   const kind = mediaKind(url);
-  if (kind === 'image') return h('img', { src: url, alt: 'Média de l’exercice', class: small ? 'media-thumb' : 'media-preview', loading: 'lazy' });
-  if (kind === 'video') return h('video', { src: url, controls: true, class: small ? 'media-thumb' : 'media-preview', preload: 'metadata' });
+  const cls = small ? 'media-thumb' : 'media-preview';
+  if (kind === 'image' || kind === 'media') {
+    // 'media' = média uploadé servi sans extension dans l'URL (héritage) : on tente l'illustration image, repli vidéo si ce n'en est pas une
+    const img = h('img', { src: url, alt: 'Illustration de l’exercice', class: cls, loading: 'lazy' });
+    if (kind === 'media') {
+      img.addEventListener('error', () => img.replaceWith(h('video', { src: url, controls: true, class: cls, preload: 'metadata' })), { once: true });
+    }
+    return img;
+  }
+  if (kind === 'video') return h('video', { src: url, controls: true, class: cls, preload: 'metadata' });
   return null;
 }
 
