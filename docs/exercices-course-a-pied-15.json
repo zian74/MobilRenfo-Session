@@ -1,0 +1,416 @@
+{
+  "exportedAt": "2026-11-11T17:00:00.000Z",
+  "profile": {
+    "name": "",
+    "niveau": "débutant",
+    "objectifs": [
+      "course à pied"
+    ],
+    "createdAt": "2026-11-11T17:00:00.000Z"
+  },
+  "exercises": [
+    {
+      "id": 1,
+      "nom": "Squat",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "quadriceps, fessiers",
+      "niveau": "débutant",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Debout, pieds largeur de hanches, pointes légèrement vers l'extérieur. Fléchis les genoux et descends les hanches en arrière, dos droit, genoux dans l'axe des pointes. Remonte en poussant dans les talons. Exercice de base pour la puissance de la foulée et la prévention des blessures du genou.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "jambes",
+        "base"
+      ],
+      "favori": true,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 2,
+      "nom": "Fente avant",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "quadriceps, fessiers",
+      "niveau": "débutant",
+      "equipement": [
+        "poids du corps",
+        "haltères"
+      ],
+      "description": "Grand pas en avant, descends le bassin verticalement, genou arrière près du sol, genou avant au-dessus de la cheville. Remonte en poussant dans le talon avant et alterne. Reproduit la phase d'appui de la foulée ; ajoute des haltères pour progresser.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "jambes",
+        "fente",
+        "foulée"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 3,
+      "nom": "Step-up",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "quadriceps, fessiers",
+      "niveau": "débutant",
+      "equipement": [
+        "banc",
+        "haltères"
+      ],
+      "description": "Face à un banc stable (hauteur genou), pose un pied entier dessus et monte en poussant dans le talon sans aide de la jambe arrière, redescends contrôlé. Alterne. Renforce la phase de propulsion verticale de la course, notamment en côte.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "jambes",
+        "propulsion",
+        "box"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 4,
+      "nom": "Soulevé de terre roumain",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "ischio-jambiers, fessiers",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "haltères",
+        "barre"
+      ],
+      "description": "Jambes légèrement fléchies, haltères le long des cuisses, dos neutre. Pousse les hanches en arrière jusqu'à l'étirement des ischios, redresse en serrant les fessiers. Protège les ischios, souvent victimes de blessures chez le coureur, et améliore la phase de poussée.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "haltères 2 x 8 kg",
+      "tags": [
+        "chaîne postérieure",
+        "ischios",
+        "prévention"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 5,
+      "nom": "Hip thrust",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "fessiers",
+      "niveau": "débutant",
+      "equipement": [
+        "banc"
+      ],
+      "description": "Omoplates sur un banc, pieds à plat, genoux à 90°. Pousse les hanches vers le haut, serre les fessiers 2 secondes, redescends sans poser. Des fessiers puissants retardent la fatigue de la foulée et maintiennent la fréquence cardiaque en fin de sortie.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "fessiers",
+        "puissance"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 6,
+      "nom": "Élévation des mollets debout",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "mollets (gastrocnémiens)",
+      "niveau": "débutant",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Debout, talons au bord d'une marche. Monte sur la pointe des pieds au maximum, pause 2 secondes, redescends lentement sous le niveau de la marche. Renforce la propulsion et l'amorti de chaque appui.",
+      "media_url": "",
+      "series_defaut": 4,
+      "repetitions_defaut": 15,
+      "temps_travail_defaut": null,
+      "repos_defaut": 60,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "mollets",
+        "propulsion",
+        "amorti"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 7,
+      "nom": "Élévation des mollets sur une jambe",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "mollets (soléaire), cheville",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Sur une jambe, talon au bord d'une marche, monte sur la pointe du pied au maximum, pause 2 secondes, redescends lentement. Alterne. Le soléaire et la stabilité de la cheville réduisent le risque de tendinite d'Achille et d'entorse.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 15,
+      "temps_travail_defaut": null,
+      "repos_defaut": 60,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "mollets",
+        "cheville",
+        "prévention",
+        "unilatéral"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 8,
+      "nom": "Squat sauté",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "quadriceps, fessiers, mollets",
+      "niveau": "avancé",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Squat classique jusqu'à la parallèle, puis explose vers le haut bras le long du corps, atterris souple sur l'avant du pied, genoux fléchis, et enchaîne. Développe la puissance musculaire et la réactivité au sol, facteurs de vitesse. Réservé quand la technique de squat est maîtrisée.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "plyométrie",
+        "explosivité",
+        "puissance"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 9,
+      "nom": "Fente sautée alternée",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "quadriceps, fessiers, mollets",
+      "niveau": "avancé",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "En fente, pousse verticalement et change de jambe en l'air, atterris en fente de l'autre côté, amorti souple. Alterne à chaque répétition. Travail pliométrique unilatéral qui améliore la stabilité dynamique et la puissance de la foulée en sprint.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 10,
+      "temps_travail_defaut": null,
+      "repos_defaut": 90,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "plyométrie",
+        "unilatéral",
+        "sprint"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 10,
+      "nom": "Gainage ventral (planche)",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "gainage, abdominaux",
+      "niveau": "débutant",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Appui sur les avant-bras et la pointe des pieds, coudes sous les épaules, corps aligné des talons à la tête, ventre et fessiers serrés. Tiens sans laisser les hanches tomber. Un tronc stable évite l'effondrement de la posture en fin de course.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 45,
+      "repos_defaut": 60,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "gainage",
+        "core",
+        "planche"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 11,
+      "nom": "Marche du fermier",
+      "categorie": "renforcement",
+      "activite": "course à pied",
+      "groupe_musculaire": "avant-bras, gainage, trapèzes",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "haltères lourds"
+      ],
+      "description": "Haltères lourds dans chaque main, bras le long du corps, fais des allers-retours en marchant droit, épaules basses, ventre serré, regard devant. Renforce la préhension, les épaules et le gainage dans un même exercice fonctionnel.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 30,
+      "repos_defaut": 60,
+      "charge_conseille": "haltères 2 x 20 kg",
+      "tags": [
+        "préhension",
+        "gainage",
+        "marche",
+        "fonctionnel"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 12,
+      "nom": "Mobilité hanche 90/90",
+      "categorie": "mobilité",
+      "activite": "course à pied",
+      "groupe_musculaire": "hanches, rotateurs",
+      "niveau": "débutant",
+      "equipement": [
+        "tapis"
+      ],
+      "description": "Assis, une jambe à 90° devant, l'autre à 90° sur le côté. Fais basculer le bassin pour échanger les jambes en gardant le dos droit. Ouvre les hanches pour augmenter l'amplitude de la foulée et réduire la charge sur les genoux.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 45,
+      "repos_defaut": 30,
+      "charge_conseille": "tapis",
+      "tags": [
+        "mobilité",
+        "hanche",
+        "foulée"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 13,
+      "nom": "Mobilité cheville genou-au-mur",
+      "categorie": "mobilité",
+      "activite": "course à pied",
+      "groupe_musculaire": "chevilles, soléaire",
+      "niveau": "débutant",
+      "equipement": [
+        "mur"
+      ],
+      "description": "Face à un mur, pied arrière talon au sol, avance le genou avant vers le mur sans décoller le talon. Augmente la distance progressivement. La dorsiflexion de cheville permet un appui plus efficace et protège le tendon d'Achille. 12 répétitions par jambe.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 12,
+      "temps_travail_defaut": null,
+      "repos_defaut": 30,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "mobilité",
+        "cheville",
+        "dorsiflexion",
+        "prévention"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 14,
+      "nom": "World's greatest stretch",
+      "categorie": "mobilité",
+      "activite": "course à pied",
+      "groupe_musculaire": "hanches, thoracique, ischios, chevilles",
+      "niveau": "intermédiaire",
+      "equipement": [
+        "tapis"
+      ],
+      "description": "En fente avant profonde, mains au sol à l'intérieur du pied avant, lève le bras du même côté en tournant le buste, reviens. Alterne (8 par côté). Enchaînement global idéal en échauffement pour ouvrir toutes les chaînes sollicitées par la course.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": 8,
+      "temps_travail_defaut": null,
+      "repos_defaut": 30,
+      "charge_conseille": "tapis",
+      "tags": [
+        "mobilité",
+        "globale",
+        "échauffement"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    },
+    {
+      "id": 15,
+      "nom": "Étirement du quadriceps debout",
+      "categorie": "mobilité",
+      "activite": "course à pied",
+      "groupe_musculaire": "quadriceps, psoas",
+      "niveau": "débutant",
+      "equipement": [
+        "poids du corps"
+      ],
+      "description": "Debout sur une jambe, attrape la cheville de l'autre jambe et amène le talon vers la fesse, genoux joints, bassin neutre, tiens 30 secondes. Change de jambe. Étire le devant de la cuisse, zone très sollicitée par la foulée et souvent responsable de douleurs de hanche.",
+      "media_url": "",
+      "series_defaut": 3,
+      "repetitions_defaut": null,
+      "temps_travail_defaut": 30,
+      "repos_defaut": 30,
+      "charge_conseille": "poids du corps",
+      "tags": [
+        "étirement",
+        "quadriceps",
+        "hanche"
+      ],
+      "favori": false,
+      "created_at": 1762862400000,
+      "updated_at": 1762862400000
+    }
+  ],
+  "sessions": [],
+  "planned": [],
+  "seq": {
+    "exercise": 16,
+    "session": 1,
+    "item": 1,
+    "planned": 1,
+    "log": 1
+  }
+}
