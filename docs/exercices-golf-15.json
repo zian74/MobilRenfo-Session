@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-11-11T17:00:00.000Z",
+  "exportedAt": "2026-11-26T15:30:00.000Z",
   "profile": {
     "name": "",
     "niveau": "débutant",
@@ -21,7 +21,7 @@
         "kettlebell"
       ],
       "description": "Debout, pieds largeur d'épaules, un haltère ou kettlebell tenu verticalement contre la poitrine, coudes hauts. Fléchis les genoux et les hanches en poussant les fesses en arrière, dos droit, puis remonte en poussant dans les talons. La position basse stable est la base du transfert de poids dans le swing.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/05/sumo-squat-exercise-illustration.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -48,7 +48,7 @@
         "poids du corps"
       ],
       "description": "Fente arrière (pas en arrière), torse droit, bras pliés à 90° devant la poitrine comme au golf. En bas de la fente, tourne le buste vers la jambe avant, reviens au centre, puis remonte. Alterne les jambes. Travaille simultanément les jambes et la rotation thoracique du swing.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/02/lunge-twist-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -75,7 +75,7 @@
         "barre"
       ],
       "description": "Debout, jambes légèrement fléchies, haltères le long des cuisses, dos neutre. Pousse les hanches en arrière jusqu'à sentir l'étirement des ischios, puis redresse en serrant les fessiers. La chaîne postérieure bien tonique stabilise la posture penchée du golf et protège le bas du dos.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/05/romanian-deadlift-exercise-illustration.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -102,7 +102,7 @@
         "poids du corps"
       ],
       "description": "Omoplates sur un banc, pieds à plat au sol, genoux à 90°. Pousse les hanches vers le haut jusqu'à l'alignement épaules-hanches-genoux, serre les fessiers 2 secondes en haut. Les fessiers sont le moteur de la rotation des hanches au downswing.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2026/10/dumbbell-hip-thrust.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 12,
       "temps_travail_defaut": null,
@@ -129,7 +129,7 @@
         "haltères"
       ],
       "description": "Pied arrière sur un banc, grand pas en avant, descends le bassin jusqu'à la parallèle de la cuisse avant, genou stable. Remonte en poussant dans le talon avant. Développe la force unilatérale et l'équilibre, nécessaires pour tenir la posture en fente du swing sans bouger les hanches.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/05/bulgarian-split-squat-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -155,7 +155,7 @@
         "poids du corps"
       ],
       "description": "En position de planche sur les mains, corps aligné. Sans bouger les hanches, amène une main toucher l'épaule opposée, reviens, puis l'autre main (10 touchers au total = 1 série complète). Renforce le gainage anti-rotation qui empêche le bassin de tourner trop tôt dans le swing.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2016/03/plank-shoulder-tap-exercise-illustration-spotebi.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 20,
       "temps_travail_defaut": null,
@@ -208,7 +208,7 @@
         "banc"
       ],
       "description": "Un genou et une main sur un banc, dos parallèle au sol, haltère dans l'autre main. Tire le coude le long du corps en serrant l'omoplate, redescends lentement. Alterne les côtés. Un dos fort maintient l'angle du buste et la vitesse de la tête de club.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2016/02/lawnmower-pull-exercise-illustration-spotebi.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 12,
       "temps_travail_defaut": null,
@@ -234,7 +234,7 @@
         "haltères"
       ],
       "description": "Debout, haltères le long du corps, coudes légèrement fléchis. Monte les bras sur les côtés jusqu'à la hauteur des épaules, redescends lentement sans balancer. Des épaules solides encaissent les accélérations du swing et protègent l'articulation.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2014/10/dumbbell-lateral-raise-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 12,
       "temps_travail_defaut": null,
@@ -285,7 +285,7 @@
         "poids du corps"
       ],
       "description": "Allongé sur le côté, appui sur l'avant-bras et le bord du pied, hanche levée, corps aligné. Tiens en serrant les abdominaux. Alterne les côtés. Les obliques bien toniques limitent la flexion latérale du buste pendant le swing et protègent les lombaires.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2014/10/side-plank-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": null,
       "temps_travail_defaut": 30,
@@ -312,7 +312,7 @@
         "chaise"
       ],
       "description": "Assis jambes écartées, mains derrière la nuque, coudes ouverts. Tourne le buste d'un côté en gardant les hanches face à l'avant, reviens au centre, puis de l'autre côté (10 rotations au total). Mobilise la colonne thoracique, la principale source de rotation du swing quand les hanches sont limitées.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2017/07/boat-twist-exercise-illustration-spotebi.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -339,7 +339,7 @@
         "tapis"
       ],
       "description": "Assis au sol, jambe avant pliée à 90° devant, jambe arrière pliée à 90° sur le côté. Fais basculer le bassin d'avant en arrière pour échanger les positions des jambes, dos droit. Assouplit les rotateurs de hanche qui pivotent dans le backswing et le downswing.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2017/08/hip-external-rotation-exercise-illustration-spotebi.jpg",
       "series_defaut": 3,
       "repetitions_defaut": null,
       "temps_travail_defaut": 45,
@@ -391,7 +391,7 @@
         "tapis"
       ],
       "description": "À genoux, fesses sur les talons, bras tendus devant au sol, puis fais glisser les mains d'un côté en inclinant le buste (position de l'enfant latérale), maintiens 30 secondes, change de côté. Étire le grand dorsal et les lombaires, très sollicités dans la posture du putting et du swing.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2014/11/upper-back-stretch-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": null,
       "temps_travail_defaut": 30,

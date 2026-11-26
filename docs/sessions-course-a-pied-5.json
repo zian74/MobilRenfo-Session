@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-11-11T17:00:00.000Z",
+  "exportedAt": "2026-11-26T15:30:00.000Z",
   "profile": {
     "name": "",
     "niveau": "débutant",
@@ -20,7 +20,7 @@
         "poids du corps"
       ],
       "description": "Debout, pieds largeur de hanches, pointes légèrement vers l'extérieur. Fléchis les genoux et descends les hanches en arrière, dos droit, genoux dans l'axe des pointes. Remonte en poussant dans les talons. Exercice de base pour la puissance de la foulée et la prévention des blessures du genou.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2014/10/squat-exercise-illustration.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 12,
       "temps_travail_defaut": null,
@@ -46,7 +46,7 @@
         "haltères"
       ],
       "description": "Grand pas en avant, descends le bassin verticalement, genou arrière près du sol, genou avant au-dessus de la cheville. Remonte en poussant dans le talon avant et alterne. Reproduit la phase d'appui de la foulée ; ajoute des haltères pour progresser.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2014/10/lunges-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -73,7 +73,7 @@
         "haltères"
       ],
       "description": "Face à un banc stable (hauteur genou), pose un pied entier dessus et monte en poussant dans le talon sans aide de la jambe arrière, redescends contrôlé. Alterne. Renforce la phase de propulsion verticale de la course, notamment en côte.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/05/step-up-with-knee-raise-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -100,7 +100,7 @@
         "barre"
       ],
       "description": "Jambes légèrement fléchies, haltères le long des cuisses, dos neutre. Pousse les hanches en arrière jusqu'à l'étirement des ischios, redresse en serrant les fessiers. Protège les ischios, souvent victimes de blessures chez le coureur, et améliore la phase de poussée.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/05/romanian-deadlift-exercise-illustration.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -126,7 +126,7 @@
         "banc"
       ],
       "description": "Omoplates sur un banc, pieds à plat, genoux à 90°. Pousse les hanches vers le haut, serre les fessiers 2 secondes, redescends sans poser. Des fessiers puissants retardent la fatigue de la foulée et maintiennent la fréquence cardiaque en fin de sortie.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2026/10/dumbbell-hip-thrust.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 12,
       "temps_travail_defaut": null,
@@ -151,7 +151,7 @@
         "poids du corps"
       ],
       "description": "Debout, talons au bord d'une marche. Monte sur la pointe des pieds au maximum, pause 2 secondes, redescends lentement sous le niveau de la marche. Renforce la propulsion et l'amorti de chaque appui.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/05/calf-raises-exercise-illustration.jpg",
       "series_defaut": 4,
       "repetitions_defaut": 15,
       "temps_travail_defaut": null,
@@ -204,7 +204,7 @@
         "poids du corps"
       ],
       "description": "Squat classique jusqu'à la parallèle, puis explose vers le haut bras le long du corps, atterris souple sur l'avant du pied, genoux fléchis, et enchaîne. Développe la puissance musculaire et la réactivité au sol, facteurs de vitesse. Réservé quand la technique de squat est maîtrisée.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/08/jump-squat-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -230,7 +230,7 @@
         "poids du corps"
       ],
       "description": "En fente, pousse verticalement et change de jambe en l'air, atterris en fente de l'autre côté, amorti souple. Alterne à chaque répétition. Travail pliométrique unilatéral qui améliore la stabilité dynamique et la puissance de la foulée en sprint.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/02/jumping-lunges-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": 10,
       "temps_travail_defaut": null,
@@ -256,7 +256,7 @@
         "poids du corps"
       ],
       "description": "Appui sur les avant-bras et la pointe des pieds, coudes sous les épaules, corps aligné des talons à la tête, ventre et fessiers serrés. Tiens sans laisser les hanches tomber. Un tronc stable évite l'effondrement de la posture en fin de course.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2014/10/plank-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": null,
       "temps_travail_defaut": 45,
@@ -309,7 +309,7 @@
         "tapis"
       ],
       "description": "Assis, une jambe à 90° devant, l'autre à 90° sur le côté. Fais basculer le bassin pour échanger les jambes en gardant le dos droit. Ouvre les hanches pour augmenter l'amplitude de la foulée et réduire la charge sur les genoux.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2017/08/hip-external-rotation-exercise-illustration-spotebi.jpg",
       "series_defaut": 3,
       "repetitions_defaut": null,
       "temps_travail_defaut": 45,
@@ -388,7 +388,7 @@
         "poids du corps"
       ],
       "description": "Debout sur une jambe, attrape la cheville de l'autre jambe et amène le talon vers la fesse, genoux joints, bassin neutre, tiens 30 secondes. Change de jambe. Étire le devant de la cuisse, zone très sollicitée par la foulée et souvent responsable de douleurs de hanche.",
-      "media_url": "",
+      "media_url": "https://spotebi.com/wp-content/uploads/2015/03/quad-stretch-exercise-illustration.jpg",
       "series_defaut": 3,
       "repetitions_defaut": null,
       "temps_travail_defaut": 30,
