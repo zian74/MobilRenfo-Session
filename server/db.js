@@ -62,7 +62,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   nom TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
+  categorie TEXT NOT NULL DEFAULT 'renforcement' CHECK (categorie IN ('renforcement','mobilité')),
+  activite TEXT NOT NULL DEFAULT 'générale' CHECK (activite IN ('générale','course à pied','trail','golf')),
   type TEXT NOT NULL DEFAULT 'mixte' CHECK (type IN ('renforcement','mobilité','mixte')),
+  niveau TEXT NOT NULL DEFAULT 'débutant' CHECK (niveau IN ('débutant','intermédiaire','avancé')),
   duree_estimee INTEGER,
   echauffement TEXT NOT NULL DEFAULT '',
   retour_au_calme TEXT NOT NULL DEFAULT '',
@@ -173,6 +176,16 @@ function migrate() {
   }
   if (!exCols.includes('activite')) {
     db.exec("ALTER TABLE exercises ADD COLUMN activite TEXT NOT NULL DEFAULT 'générale'");
+  }
+  const sessCols = db.prepare('PRAGMA table_info(sessions)').all().map((c) => c.name);
+  if (!sessCols.includes('categorie')) {
+    db.exec("ALTER TABLE sessions ADD COLUMN categorie TEXT NOT NULL DEFAULT 'renforcement'");
+  }
+  if (!sessCols.includes('activite')) {
+    db.exec("ALTER TABLE sessions ADD COLUMN activite TEXT NOT NULL DEFAULT 'générale'");
+  }
+  if (!sessCols.includes('niveau')) {
+    db.exec("ALTER TABLE sessions ADD COLUMN niveau TEXT NOT NULL DEFAULT 'débutant'");
   }
   const mediaInfo = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'media'").get();
   if (!mediaInfo) {

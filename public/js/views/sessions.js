@@ -2,6 +2,19 @@ import { get, post, put, del } from '../api.js';
 import { h, clear, field, input, select, textarea, errorBox, toast, confirmDialog, badge, emptyState, loading, modal, formatDuree } from '../ui.js';
 
 const TYPES = [['renforcement', 'Renforcement'], ['mobilité', 'Mobilité'], ['mixte', 'Mixte']];
+const CATEGORIES = [['renforcement', 'Renforcement'], ['mobilité', 'Mobilité']];
+const ACTIVITES = [['générale', 'Générale'], ['course à pied', 'Course à pied'], ['trail', 'Trail'], ['golf', 'Golf']];
+const NIVEAUX = [['débutant', 'Débutant'], ['intermédiaire', 'Intermédiaire'], ['avancé', 'Avancé']];
+const SORTS = [['recent', 'Modifiées récemment'], ['nom', 'Nom A → Z'], ['ancien', 'Plus anciennes'], ['duree', 'Durée croissante']];
+
+function sessionBadges(s) {
+  return [
+    badge(s.categorie === 'mobilité' ? 'Mobilité' : 'Renforcement', s.categorie || 'renforcement'),
+    badge(ACTIVITES.find(([v]) => v === (s.activite || 'générale'))?.[1] ?? 'Générale'),
+    badge(s.type === 'renforcement' ? 'Renforcement' : s.type === 'mobilité' ? 'Mobilité' : 'Mixte', s.type || 'mixte'),
+    badge(s.niveau || 'débutant'),
+  ];
+}
 
 function itemTitle(it) {
   return it.exercise_nom || it.nom_libre || 'Bloc libre';
@@ -63,7 +76,10 @@ export async function renderSessions() {
         await post('/api/sessions', {
           nom: s.nom,
           description: s.description || '',
+          categorie: s.categorie || 'renforcement',
+          activite: s.activite || 'générale',
           type: s.type || 'mixte',
+          niveau: s.niveau || 'débutant',
           duree_estimee: s.duree_estimee ?? null,
           echauffement: s.echauffement || '',
           retour_au_calme: s.retour_au_calme || '',
@@ -79,27 +95,57 @@ export async function renderSessions() {
     importInput.value = '';
   });
 
+  const q = input('search', { placeholder: 'Rechercher une session…', 'aria-label': 'Rechercher une session' });
+  const act = select([['', 'Toutes activités'], ...ACTIVITES]);
+  const cat = select([['', 'Toutes catégories'], ...CATEGORIES]);
+  const typ = select([['', 'Tous types'], ...TYPES]);
+  const niv = select([['', 'Tous niveaux'], ...NIVEAUX]);
+  const sort = select(SORTS, { value: 'recent' });
+
+  const toolbar = h('div', { class: 'toolbar toolbar-rows card' },
+    h('div', { class: 'toolbar-row filters' },
+      field('Activité', act), field('Catégorie', cat), field('Type', typ), field('Niveau', niv)),
+    h('div', { class: 'toolbar-row' },
+      field('Tri', sort),
+      h('div', { class: 'field', style: 'flex:1 1 220px' }, h('label', { class: 'label', for: q.id = 'q-sessions' }, 'Recherche'), q)));
+  main.append(toolbar);
+
   const list = h('div', { class: 'grid cols-2', id: 'sess-list' });
-  main.append(list, loading());
-  let data;
-  try {
-    data = await get('/api/sessions');
-  } catch (e) {
-    clear(list).append(h('div', { class: 'empty-state' }, e.message));
-    return;
+  main.append(list);
+
+  async function load() {
+    clear(list).append(loading());
+    const qs = new URLSearchParams();
+    if (q.value.trim()) qs.set('q', q.value.trim());
+    if (act.value) qs.set('activite', act.value);
+    if (cat.value) qs.set('categorie', cat.value);
+    if (typ.value) qs.set('type', typ.value);
+    if (niv.value) qs.set('niveau', niv.value);
+    if (sort.value) qs.set('sort', sort.value);
+    let data;
+    try {
+      data = await get(`/api/sessions?${qs}`);
+    } catch (e) {
+      clear(list).append(h('div', { class: 'empty-state' }, e.message));
+      return;
+    }
+    clear(list);
+    const hasFilters = q.value.trim() || act.value || cat.value || typ.value || niv.value;
+    if (data.sessions.length === 0) {
+      list.append(emptyState(hasFilters ? 'Aucune session ne correspond aux filtres.' : 'Aucune session pour le moment.', h('a', { class: 'btn primary', href: '#/sessions/nouvelle' }, '+ Composer une session')));
+      return;
+    }
+    renderList(data.sessions);
   }
-  clear(list);
-  if (data.sessions.length === 0) {
-    list.append(emptyState('Aucune session pour le moment.', h('a', { class: 'btn primary', href: '#/sessions/nouvelle' }, '+ Composer une session')));
-    return;
-  }
-  for (const s of data.sessions) {
-    list.append(h('article', { class: 'card exercise-card' },
-      h('h3', {}, s.nom),
-      h('div', { class: 'meta' },
-        badge(s.type === 'renforcement' ? 'Renforcement' : s.type === 'mobilité' ? 'Mobilité' : 'Mixte', s.type),
-        badge(`${s.nb_exercices} exercice${s.nb_exercices > 1 ? 's' : ''}`),
-        badge(formatDuree(s.duree_estimee))),
+
+  function renderList(sessions) {
+    for (const s of sessions) {
+      list.append(h('article', { class: 'card exercise-card' },
+        h('h3', {}, s.nom),
+        h('div', { class: 'meta' },
+          ...sessionBadges(s),
+          badge(`${s.nb_exercices} exercice${s.nb_exercices > 1 ? 's' : ''}`),
+          badge(formatDuree(s.duree_estimee))),
       s.description ? h('p', { class: 'small muted', style: 'margin:0' }, s.description) : null,
       h('div', { class: 'card-actions' },
         h('a', { class: 'btn small primary', href: `#/sessions/${s.id}/demarrer` }, '▶ Démarrer'),
@@ -114,11 +160,17 @@ export async function renderSessions() {
         } }, 'Dupliquer'),
         h('button', { class: 'btn small danger', onclick: async () => {
           if (await confirmDialog(`Supprimer la session « ${s.nom} » ?`)) {
-            try { await del(`/api/sessions/${s.id}`); toast('Session supprimée', 'success'); renderSessions(); }
+            try { await del(`/api/sessions/${s.id}`); toast('Session supprimée', 'success'); load(); }
             catch (e) { toast(e.message, 'error'); }
           }
         } }, 'Supprimer'))));
+    }
   }
+
+  let debounce;
+  q.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(load, 200); });
+  for (const el of [act, cat, typ, niv, sort]) el.addEventListener('change', load);
+  await load();
 }
 
 async function openExercisePicker(onPick) {
@@ -239,7 +291,10 @@ export async function renderSessionForm(id) {
   const nom = input('text', { required: true, maxlength: 120, value: session?.nom ?? '' });
   const description = textarea({ rows: 2 });
   description.value = session?.description ?? '';
+  const categorie = select(CATEGORIES, { value: session?.categorie ?? 'renforcement' });
+  const activite = select(ACTIVITES, { value: session?.activite ?? 'générale' });
   const type = select(TYPES, { value: session?.type ?? 'mixte' });
+  const niveau = select(NIVEAUX, { value: session?.niveau ?? 'débutant' });
   const duree = input('number', { min: 0, max: 1440, value: session?.duree_estimee ?? '', placeholder: 'auto' });
   const echauffement = textarea({ rows: 2, placeholder: 'Bloc libre ou exercices d’échauffement' });
   echauffement.value = session?.echauffement ?? '';
@@ -291,7 +346,8 @@ export async function renderSessionForm(id) {
   form.append(err,
     field('Nom de la session *', nom),
     field('Description', description),
-    h('div', { class: 'field-row' }, field('Type', type), field('Durée estimée (min, vide = auto)', duree)),
+    h('div', { class: 'field-row' }, field('Catégorie', categorie), field('Activité', activite), field('Type', type), field('Niveau', niveau)),
+    field('Durée estimée (min, vide = auto)', duree),
     field('Échauffement (optionnel)', echauffement),
     field('Retour au calme (optionnel)', retour),
     h('h3', { class: 'mt' }, `Exercices (${items.length})`),
@@ -307,7 +363,10 @@ export async function renderSessionForm(id) {
     const body = {
       nom: nom.value.trim(),
       description: description.value.trim(),
+      categorie: categorie.value,
+      activite: activite.value,
       type: type.value,
+      niveau: niveau.value,
       duree_estimee: duree.value === '' ? null : Number(duree.value),
       echauffement: echauffement.value.trim(),
       retour_au_calme: retour.value.trim(),
@@ -346,7 +405,7 @@ export function buildReadSheet(session, { extraActions = null } = {}) {
   sheet.append(
     h('h1', {}, session.nom),
     h('div', { class: 'sheet-meta' },
-      badge(session.type === 'renforcement' ? 'Renforcement' : session.type === 'mobilité' ? 'Mobilité' : 'Mixte', session.type),
+      ...sessionBadges(session),
       ' ',
       badge(formatDuree(session.duree_estimee)),
       session.description ? h('p', { class: 'muted', style: 'margin:8px 0 0' }, session.description) : null),
